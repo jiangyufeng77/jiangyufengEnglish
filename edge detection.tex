@@ -1,0 +1,13 @@
+\documentclass[11pt, oneside]{article}   
+\usepackage{geometry}  
+\usepackage{indentfirst}  
+\setlength{\parindent}{1em}         			
+\title{Edge Detection in Digital Image Processing}
+\author{Jiang Yufeng}
+\date{\today}							
+\begin{document}
+\maketitle
+Edge detection operators can have better edge effect under the circumstance of obvious edge and low noise. But images that we actually collect have lots of noises. In order to solve this problem, this article gives some methods. \\
+\indent Firstly, we need to de-noise the image using Gaussian filtering. The principle of using Gaussian noise model is that it does not matter how much the variance and histogram of the original image is, it will always follows the Gauss distribution.And then, we will get a image without much Gaussian noise and the number of the residual noise points decreases sharply.\\\indent Secondly, it is time to process edge detection. In this part, this article give three methods including binary morphology, canny operator, log operator.  Binary image is known as black and white image. In this method, we can apply binary image and mathematical morphology.  The basic idea is that we need to measure and extract the corresponding shape from image using structural elements that are prescribed already.\\
+\indent Canny operator uses two thresholds to detect strong edge and weak edge respectively, and is better at balancing the enhanced edge and positioning accuracy compared to other operators.From this point, it has good performance of detection edge, which has a wide application.\\\indent Log operator is a linear and time-invariant operator, and is often employed to judge that edge pixels lie in either bright section or dark section of the image. Log operator is same as Canny operator in the aspect of using Gaussian filter at first.\\\indent There are many methods in the domain of image edge detection, but they all have certain disadvantages. The most we can do is choosing suitable edge detection operator according to specific situation in practice.
+\end{document}  
