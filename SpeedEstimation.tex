@@ -1,0 +1,11 @@
+\documentclass[11pt,oneside]{article}
+\usepackage{indentfirst}
+\title{Speed Estimation On Moving Vehicle Based on Digital Image Processing}
+\author{Jiang Yufeng}
+\date{\today}
+\begin{document}
+\maketitle
+Along with the advance of the technology, more and more people realize the importance of smart transportation like CCTV and ITS. This research focuses on vehicle speed estimation using image processing from video data and static position using Euclidean distance with many different camera angles. The method is same as the edge detection through using Gaussian function and filter to remove noise.  \\
+\indent Video data is captured from static camera at top position of highway to calculate perpendicular view and distance between object and camera. Then, putting video data into frames and each frame is applied preprocessing. The purpose of preprocessing is to minimize bold shadow that can be detected. The third step is background subtraction using GMM method because it is a good algorithm to use for the classification of static postures. Then, we need to filter or reduce noise produced from background subtraction to smooth and remove the shadow. The next step is using morphology operation to reconstruct image after shadow removal process and finding object contours on the images to finish object detection. The last step is labeling and tracking to estimate the speed.\\
+\indent Speed estimation plays a vital role in the Intelligent Traffic System which can be done by using image processing technique. 
+\end{document}
