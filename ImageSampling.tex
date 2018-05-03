@@ -1,0 +1,25 @@
+\documentclass[11pt,oneside]{article}
+\usepackage{indentfirst,graphicx}
+\setlength{\parindent}{1em}
+\title{Image Sampling and Quantization}
+\author{Yufeng Jiang}
+\date{\today}
+\begin{document}
+\maketitle
+There are too many ways to acquire images through generating digital images from sensed data. During this process, we have two procedures: image sampling and quantization.\\
+\begin{figure*}[htbp]
+\centering
+\includegraphics[width=0.75\textwidth]{1.jpeg}
+\caption{Generating a digital image. (a) Continuous image. (b) A scan line from A to B in the continuous image, used to illustrate the concepts of sampling and quantization. (c)Sampling and quantization. (d) Digital scan line.}
+\label{Figure 1}
+\end{figure*}
+\indent The basic idea about sampling and quantization is illustrated in Figure \ref{Figure 1}. 
+From Figure 1(a), we can see a continuous image that we want to convert to digital form by sampling the function in both coordinates and in amplitude. Digitizing the coordinate values is called sampling, and digitizing the amplitude values is called quantization. \\
+\indent In order to sample the function, we can take equally space samples, as shown in Figure 1(c), and the intensity values also need to be converted into discrete quantities. The digital samples resulting from both sampling and quantization are shown in Figure 1(d). Starting from the top of the image and carrying out procedures can lead to a two-dimensional digital image. Anther method to sample is sensing array, the character of this method is no motion, and the number of sensors in the array clarifies the limits of sampling in both directions. We can clearly infer from the Figure \ref{Figure 2} that the quality of a digital image is determined by the number of samples and discrete intensity levels. 
+\begin{figure*}[htbp]
+\centering
+\includegraphics[width=0.75\textwidth]{2.jpeg}
+\caption{(a) Continuous image projected onto a sensor array. (b) Result of image sampling and quantization.}
+\label{Figure 2}
+\end{figure*}
+\end{document}
