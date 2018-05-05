@@ -1,0 +1,26 @@
+\documentclass[11pt,twocolumn]{article}
+\usepackage{indentfirst,graphicx}
+\usepackage{multicol,multirow,array,amsmath,amssymb,float}
+\setlength{\parindent}{1em} 
+\title{Spatial and Intensity Resolution}
+\author{Yufeng Jiang}
+\date{\today}
+\begin{document}
+\onecolumn
+\maketitle
+\begin{multicols}{2}
+Intuitively, spatial resolution is a smallest measure of the discernible detail in an image. Spatial resolution can be stated in a number of ways, and the most common measure is dots per unit distance. A widely used definition of image resolution is the largest number of discernible line pairs per unit distance. Dots per unit distance is a measure of image resolution which is used commonly in the printing and publishing industry.\\
+\indent  The key point of spatial resolution is that we must illustrate the measure of spatial resolution at spatial units. The size of an image can not tell the complete meaning. If we say that an image has a resolution 1024*1024 pixels has no mean, because it doesn’t explain the spatial dimensions encompassed by the image. \\
+\indent Intensity resolution similarly refers to the smallest discernible change in intensity level. The number of intensity levels is an integer power of two, based on hardware considerations. Though there is same character of the spatial resolution and intensity resolution, the definition of them is different. Spatial resolution must be based on a per unit of distance, however, it is common to refer to the number bits used to quantize intensity as the intensity resolution.\\
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.4\textwidth]{1.jpeg}
+\caption{Typical effects of reducing spatial resolution. Images shown at: (a) 1250 dpi, (b) 300 dpi, (c) 150 dpi, and (d) 72 dpi. The thin black borders were added for clarity. They are not part of the data.}
+\label{Figure 1}
+\end{figure}
+\indent Figure \ref{Figure 1} shows the effects of reducing spatial resolution in an image. The image in Figure 1(a) through (d) are respectively shown in 1250, 300, 150 and 72 dpi. There are some small visual differences between (a) and (b) that can be ignored. But (c) shows visible degradation which we do not want to have. And (d) shows degradation that is visible in most features of the image.
+\end{multicols}
+\begin{thebibliography}{9}
+\bibitem{pa} Rafael C.~Gonzalez and Richard E.~Woods, ``Digital Image Processing,'' Publishing House of Electronics Industry (2013)
+\end{thebibliography}
+\end{document}
