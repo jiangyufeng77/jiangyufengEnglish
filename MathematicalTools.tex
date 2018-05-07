@@ -1,0 +1,100 @@
+\documentclass[a4paper,11pt]{article}
+\usepackage{graphicx,float,indentfirst}
+\usepackage{amsmath}
+\setlength{\parindent}{1em}
+\setlength{\columnsep}{5pt}
+\setlength{\columnseprule}{0.4pt}
+\title{An Introduction to the Mathematical Tools Used in Digital Image Processing}
+\author{Yufeng Jiang}
+\date{\today}
+\begin{document}
+\maketitle
+In this article, we will be introduced the various mathematical tools about digital image processing, and be helped to use them to a variety of basic image-processing tasks.\\
+\section{Array versus Matrix Operations}
+\indent Images can be viewed equivalently as matrices. In fact, there are many situations
+in which operations between images are carried out using matrix theory. Thus, it is the reason why a clear distinction must be made between array and matrix operation. For example, consider the following 2 * 2 images:\\
+$$
+\left[
+\begin{matrix}
+  a_{11} & a_{12} \\
+  a_{21} & a_{22} \\
+  \end{matrix} 
+  \right]
+  \left[
+  \begin{matrix}
+  b_{11} & b_{12} \\
+  b_{21} & b_{22} \\
+  \end{matrix}
+  \right]
+$$
+\indent The array product of these two images is
+$$
+\left[ 
+\begin{matrix}
+  a_{11} & a_{12} \\
+  a_{21} & a_{22} \\
+  \end{matrix}
+  \right]  
+  \left[ 
+  \begin{matrix}
+  b_{11} & b_{12} \\
+  b_{21} & b_{22} \\
+  \end{matrix}
+  \right]  =
+  \left[
+  \begin{matrix}
+  a_{11}b_{11} & a_{12}b_{12} \\
+  a_{21}b_{21} & a_{22}b_{22} \\
+  \end{matrix}
+    \right]
+ $$
+\section{Linear versus Nonlinear Operations}
+\indent One of the most important classifications of an image-processing method is whether it is linear or nonlinear. Consider a general operator, H, that produces an output image, and g(x, y), for given input image, f(x, y):\\
+\begin{gather}
+H[f(x, y)] = g(x, y)
+\end{gather}
+\indent H is said to be a linear operator if\\
+\begin{equation}
+\begin{split}
+H[a_{i}f_{i}(x, y) + a_{j}f_{j}(x, y)] &= a_iH[f_i(x, y)+a_jH[f_j(x, y)]] \\
+                                       &=a_ig_i(x, y)+a_jg_j(x, y)
+\end{split}
+\end{equation}
+\indent Linear operations are exceptionally important because they are based on a large number of theoretical and practical results that are applicable to image processing\\
+\section{Arithmetic Operations}
+\begin{figure}[htbp]
+\centering
+\begin{minipage}[t]{0.48\textwidth}
+\centering
+\includegraphics[width=6cm]{1.jpeg}
+\caption{Mask image.}
+\label{fig:1}
+\end{minipage}
+\begin{minipage}[t]{0.48\textwidth}
+\centering
+\includegraphics[width=6cm]{2.jpeg}
+\caption{A live image.}
+\label{fig:2}
+\end{minipage}
+\end{figure}
+\begin{figure}[htbp]
+\centering
+\begin{minipage}[t]{0.48\textwidth}
+\centering
+\includegraphics[width=6cm]{3.jpeg}
+\caption{Difference between 1 and 2.}
+\label{fig:3}
+\end{minipage}
+\begin{minipage}[t]{0.48\textwidth}
+\centering
+\includegraphics[width=6cm]{4.jpeg}
+\caption{Enhanced difference image.}
+\label{fig:4}
+\end{minipage}
+\end{figure}
+\indent Arithmetic operations beetween images are array operations that arithmetic operations are carried out between corresponding pixel pairs. Figure \ref{fig:1} shows a mask X-ray image of the top of a patient's head prior to injection of an iodine medium into the bloodstream. Figure \ref{fig:2} is a sample of a live image taken after the medium was injected. Figure \ref{fig:3} is the difference between \ref{fig:1} and \ref{fig:2}. And Figure \ref{fig:4} is a clear map of how the medium is propagating through the blood vessels in the subject's brain.\\
+\end{document}
+
+
+
+
