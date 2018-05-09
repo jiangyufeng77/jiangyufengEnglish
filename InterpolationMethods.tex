@@ -1,0 +1,62 @@
+\documentclass[a4paper]{article}
+\usepackage{graphicx,float,indentfirst}
+\usepackage{threeparttable}
+\usepackage[justification=centering]{caption}
+\setlength{\parindent}{1em}
+\title{Survey: Interpolation Methods in Medical Image Processing}
+\author{Yufeng Jiang}
+\date{\today}
+\begin{document}
+\maketitle
+Image interpolation techniques are used in medical imaging for image generation and processing. This paper compares seven asbects, and the comparison is done by spatial and Fourier analyses, computational complexity, runtime evalutions, qualitative and quantitative interpolation error determinations for particular interpolation tasks in medical image processing.\\
+\section{INTRODUCTION}
+Image interpolation has many application in computer vision. It is the first of the two basic resampling steps and transforms a discrete matrix into a continuous image. Then, sampling of this intermediate result produces the resampled discrete image. Image interpolation methods have occupied a peculiar position in medical image processing. They are necessary for image generation and image post-processing. \\
+\\
+\begin{table}[H]
+\begin{threeparttable}
+\centering
+\caption{PREVIOUS PAPERS COMPARING MORE THAN THREE INTERPOLATION METHODS}
+\label{tab1}
+\begin{tabular}{ccccccccc}
+  \hline
+  Interpolation sheme & [4] & [5] & [6] & [7] & [8] & [10] & [11] & [12]  \\ 
+  \hline
+  Truncated sinc & Ac & & & & & & & AC  \\ 
+  Windowed sinc & & & & & & & & ABC  \\ 
+  Nearest neighbor & Ac & AB & & AB & & Ac & ABc & ABC  \\
+  Linear & Ac & ABc & AB & ABc & acC & ABc & ABc & ABC  \\
+  Quadratic(approx.) & & & & & & & ABc &  \\
+  Quadratic(interpo.) & & & & & & & ABc &   \\
+  B-spline(approx.) & ABc & A & & AB & & ABc & ABc \\
+  B-spline(interpol.) & abc & & AB & & & ABcd & &  \\
+  Cubic & & & A & & acC & & & A  \\
+  \hline  
+\end{tabular}
+\begin{tablenotes}
+\item[1] (a) kernels' derivation. (A) including plots.
+\item[2] (b) Fourier analysis. (B) including plots.
+\item[3] (c) image based qualitative comparison by subjects. (C) quantitative interpolation error determination. 
+\item[4] (d) complexity evaluation. (D) runtime measurements.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+Table \ref{tab1} summarizes previous work comparing interpolation methods. In this table, [4] means cubic splines, [5] and [6] means cubic convolution, [7] means high-resolution spline interpolation, [8] means bi-cubic spline interpolation, [10] means B-spline interpolation, [11] means similar quality and [12] means error spectrum. \\
+\section{INTERPOLATION TASKS IN MEDICAL IMAGING}
+Image resampling is required for every geometric transform of discrete images. In this paper, we compare interpolation methods through simple expansions in one dimension and different rotations. Figure \ref{fig1} and Figure \ref{fig2} shows a digital photograph of a human eye. The positions of the Purkinje reflections within the pupil are used for strabometry.\\
+\begin{figure}[htbp]
+\centering
+\begin{minipage}[t]{0.48\textwidth}
+\centering
+\includegraphics[width=6cm]{1.jpeg}
+\caption{In this example, the image of a human eye was acquired for strabometry}
+\label{fig1}
+\end{minipage}
+\begin{minipage}[t]{0.48\textwidth}
+\centering
+\includegraphics[width=6cm]{2.jpeg}
+\caption{The $\frac{4}{3}$ expansion in 􏰏 direction was performed by linear interpolation.
+}
+\label{fig2}
+\end{minipage}
+\end{figure}
+\end{document}
