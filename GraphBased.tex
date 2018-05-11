@@ -1,0 +1,40 @@
+\documentclass[a4paper,twocolumn]{article}
+\usepackage{indentfirst,graphicx,float}
+\usepackage{amsmath}
+\usepackage{balance}
+\usepackage{cite}
+\setlength{\parindent}{1em}
+\setlength{\columnsep}{5pt}
+\title{Efficient Graph-Based Image Segmentation}
+\author{Yufeng Jiang}
+\date{\today}
+\bibliographystyle{plain}
+\begin{document}
+\maketitle
+\balance
+\section{Introduction}
+There are still great challenges for computer vision at image segmentation and grouping, but a wide range of computational vision problems could in principle make good use of segmented images. It is important that a segmentation method have some properties. One is capturing perceptually important groupings or regions that often reflect global aspects of the image. Anthor property is highly efficient.\\
+\indent The method mentioned at this paper is based on selecting edges from a graph, where each pixel corresponds to a node in the graph. Now, we use a sample synthetic example to illustrate some non-local image characteristics captured by our segmentation method. The Figure \ref{fig1} shows that this image has three distinct regions.\\
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=6cm]{1.jpeg}
+\caption{A synthetic image with three perceptually distinct regions, and the three largest regions found by our segmentation method.}
+\label{fig1}
+\end{figure}
+\section{Graph-Based Segmentation}
+In the case of image segmentation, the elements in V are pixels. The weight of an edge is some measure of the dissimilarity between the two pixels that are connected by edge. Figure \ref{fig2} shows the results of the algorithm for an image of an indoor scene, where both fine detail and larger structures are perceptually important. And Figure \ref{fig3} shows three simple objects from the Columbia COIL image database. Each region that has found is the largest region that algorithm mentioned at this paper, and it is not part of the black background\cite{segmentation}.
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=6cm]{2.jpeg}
+\caption{An indoor scene (image 320 × 240, color), and the segmentation results produced by our algorithm.}
+\label{fig2}
+\end{figure}
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=6cm]{3.jpeg}
+\caption{Three images from the COIL database, , and the largest non-background component found in each image.}
+\label{fig3}
+\end{figure}
+\onecolumn
+\bibliography{segmentation}
+\end{document}
