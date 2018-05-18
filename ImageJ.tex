@@ -1,0 +1,51 @@
+\documentclass[a4paper]{article}
+\usepackage{indentfirst,float,graphicx}
+\usepackage{threeparttable}
+\usepackage{balance,multicol}
+\usepackage{cite}
+\setlength{\parindent}{1em}
+\title{Image Processing with ImageJ}
+\author{Yufeng Jiang}
+\date{\today}
+\bibliographystyle{plain}
+\begin{document}
+\maketitle
+As the popularity of the ImageJ open-source, Imaging program based on Java is growing, and its capabilities increase. Now, it is being used for imaging applications ranging from skin analysis to neuroscience.\\
+\begin{multicols}{2}
+\balance
+\section{Introduction}
+Recently, image has become an increasingly important discipline because of the advances of the medical and biological sciences and growing importance of determining the relationship between structure and function. It is common practice for manufacturers of image acquisition devices to include dedicated image processing software, and image processing programs are available by them. ImageJ has a unique position because its source code is availiable and it can run on any operating system.\\
+\section{Imaging capabilities}
+ImageJ can read most of the common and important formats used in the field of biomedical imaging, as shown at Table \ref{tab1}. In addition, ImageJ can be used to acquire images directly from scanners, cameras and other video sources. The program supports all common image manipulations, including reading and writing of image files, operations on dividual pixels and image regions.\cite{ImageJ}\\
+\begin{table}[H]
+\centering
+\caption{Image formats supported by ImageJ as of June 2004}
+\label{tab1}
+\begin{tabular}{|p{10em}|p{4em}|}
+  \hline
+  Format &  Read and Write \\ \hline
+  Analyze(Mayo Clinic's format) & (plug-in) \\ \hline
+  AVI uncompressed movies & $\surd$ \\ \hline
+  Blo-Rad-Z-series & (plug-in) \\ \hline
+  BMP & $\surd$ \\ \hline
+  DICOM (uncompressed) read & $\surd$ \\ \hline
+  DICOM (uncpmpressed) write & (plug-in) \\ \hline
+  FITS (NASA format) & read \\ \hline
+  GIF (inculding animated) & $\surd$ \\ \hline
+  Jpeg & $\surd$ \\ \hline
+  Jpeg EXIF digital camera header & (plug-in) \\ \hline
+  PNG & $\surd$ \\ \hline
+  SIF (Andor Technology spectrosocopy format) & (plug-in) \\ \hline
+\end{tabular}
+\end{table}
+\section{Imaging library}
+Space limitations dicate that only a few salient examples are be given. For example, researchs at the Laboratory for Cellular Neurobiology of the Swiss Federal Institute of Technology and the Biomedical Imaging Group at Erasmus MC-University Medical Center Rotterdam are using the NeuronJ plug-in, just as shown at Figure \ref{fig1}.
+\end{multicols}
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=4cm]{1.jpeg}
+\caption{The main window in the back shows a flurescence microsocpy image of a neuronal cell.}
+\label{fig1}
+\end{figure}
+\bibliography{ImageJ}
+\end{document}

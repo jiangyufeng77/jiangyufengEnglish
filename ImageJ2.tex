@@ -1,0 +1,40 @@
+\documentclass[a4paper]{article}
+\usepackage{indentfirst,graphicx,float}
+\usepackage{balance,multicol}
+\usepackage{cite}
+\setlength{\parindent}{1em}
+\title{Image Processing with ImageJ}
+\author{Yufeng Jiang}
+\date{\today}
+\bibliographystyle{plain}
+\begin{document}
+\maketitle
+\balance
+\begin{multicols}{2}
+\section{Cross-platform}
+One of the strong points of ImageJ is its ability to run on different platforms. Statistics done at the last three months indicate that it is being used mostly with Microsoft operatin systems covered 80 percent, followed by Macintosh Platforms covered 16 percent and Linux covered 4 percent. There are two disadvantance that these numbers are estimates and can be misleading beacuse people can download it to one platform and use it on another platform. But there are still high number of Macintosh users support the long-held view that this type of computer attracts large sections of academia.\\
+\section{Extensions: Macros and plug-ins}
+The program is virtually limitless because of the acailiability of user-written macros and plut-ins. Macros are meant to make it easier to automate oft-repeated tasks which would be tedious to implement manually. ImageJ has a macro language which is easy to used, and knowledge of Java isn't required for writing simple scripts. For example, as showm at Figure \ref{fig1}, a macro can be written that acquires an image every ten seconds and stores it in a sequence. \cite{ImageJ}\\
+\begin{figure}[H]
+\centering
+\includegraphics[width=6cm]{1.jpeg}
+\caption{This simple ImageJ macro acquires an image every 10 seconds and stores it in sequence.}
+\label{fig1}
+\end{figure}
+The Figure \ref{fig2} shows that Andrea Mothe and co-workers use ImageJ and the VolumeJ plug-in for the 3-D reconsturction of the differential localization of nerve cell gene expression.\\
+\begin{figure}[H]
+\centering
+\includegraphics[width=6cm]{2.jpeg}
+\caption{This 3-D reconstruction of DAPI-stained (blue) nuclei in a rat spinal cord section after intraventricular DiI injection results in red-staining of cells in the ependymal cell layer of the central cord. }
+\label{fig2}
+\end{figure}
+Abramoff uses ImageJ's capabilities for storing and displaying retinal images in a telediagnosis environment. The program can accept and store a great variety of image formats which can be used for manual grading by ophthalmologists or for semiautomated or automated detection of diabetic retinopathy, as shown at Figure \ref{fig3}\\
+\begin{figure}[H]
+\centering
+\includegraphics[width=6cm]{3.jpeg}
+\caption{The EyeCheck Web site provides online diabetic retinopathy screening from retinal color photographs. The left area of the image shows the Web page with patient information.}
+\label{fig3}
+\end{figure} 
+\end{multicols}
+\bibliography{ImageJ}
+\end{document}

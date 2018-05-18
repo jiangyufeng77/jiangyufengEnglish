@@ -1,0 +1,47 @@
+\documentclass[a4paper,twocolumn]{article}
+\usepackage{indentfirst,graphicx,float}
+\usepackage{amsmath,threeparttable,array}
+\usepackage{balance,multicol}
+\usepackage{cite}
+\setlength{\parindent}{1em}
+\title{A Survey on Digital Image Processing Techniques for Tumor Detection}
+\author{Yufeng Jiang}
+\date{\today}
+\bibliographystyle{plain}
+\begin{document}
+\balance
+\maketitle
+This paper presents a formal review on evolution of the image processing techniques for tumor detection. And results are made on the basis of parameters comsidered to find the robust algorithm for tumor detection.\\
+\section{Introduction}
+According to the latest statistics, cancer amongst the leading causes of deaths all over the world as it's a life threatenting disease. Digital images began to be used for screening and early detection of tumor and being divided into malignant or non-malignant begin the nineteenth century. As is shown in Table \ref{tab1}. It becomes relatively easy to detect tumor at a much early stage. But, the malignant tumor is dangeous and may lead to death.\\
+\section{Tumor Detection Process}
+In this section, the basic procedure of tumor detection by Image Processing is described with help of DFDs. In DFD level 1 the intermediate step is pre-processing the iamge and then applying segmentation. After finding the region of interest, we can find out whether the suspected candidate region is tumor region is tumor or not through classificationg. DFD level 0 as in Figure \ref{fig1} is a simple representation of detecting tumor region in the acquired image by applying different techniques of Image Processing and Machine Learning. DFD level 1 presents the concept behind detection of the region of interest. DFD level 2 presents the complete procedure of tumor detection process, presenting the various techniques being used in the process. \\
+\begin{table}[H]
+\begin{threeparttable}
+\centering
+\caption{Various kinds of tumors}
+\label{tab1}
+\begin{tabular}{|c|c|p{10em}|c|}
+  \hline
+  S1.No. & Type & Description & Threat \\ \hline
+  1 & 0 & The tumors which does not spread to different body parts. & $\times$ \\ \hline
+  2 & 1 & The tumors which spread to different body areas. & $\surd$ \\ \hline
+  3 & $X^1$ & The tumors which originate at a particular site in body and rarely spread to other areas. & $\times$ \\ \hline
+  4 & $X^2$ & The secondary tumors are those which originated at some other locations in body but spread to other parts as well. & $\surd$ \\ \hline
+\end{tabular}
+\begin{tablenotes}
+\item[1] 0 - Benign, 1 - Malignant, $X^1$ - Primary tumor, $X^2$ - Metastatic tumor, $\times$ - Not threatening, $\surd$ - Life threatening
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=6cm]{1.jpeg}
+\caption{DFD level 0}
+\label{fig1}
+\end{figure}
+Pre-processing techniques can restore the information of all the distorted pixels. And feature 
+\onecolumn
+extraction provides an aid by reducing dimensionality or area to be studied. This approcah is also used for segmentation of images to find ROI \cite{tumor}. \\
+\bibliography{tumor}
+\end{document}
