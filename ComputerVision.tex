@@ -1,0 +1,36 @@
+\documentclass[a4paper,11pt]{article}
+\usepackage{indentfirst}
+\usepackage{graphicx,float}
+\usepackage{balance,multicol}
+\usepackage{cite}
+\setlength{\parindent}{1em}
+\title{Enhanced Computer Vision with Microsoft Kinect Sensor: A Review}
+\author{Yufeng Jiang}
+\date{\today}
+\bibliographystyle{plain}
+\begin{document}
+\maketitle
+\balance
+With the invention of the low-cost Microsoft Kinect sensor, high-resolution depth and visual (RGB) sensing has being used widely. This paper writes a comprehensive review of Kinect-based computer vision algorithms and applications. The reviewed approaches mentioned in this paper are introduced main algorithmic contributions and advantages or differences compared to their RGB couterparts. At the end of this paper, authors also give an overview of the challenges in this field and future research trends.\\
+\begin{multicols}{2}
+\section{INTRODUCTION}
+Kinect is an RGB-D sensor providing synchronized color and depth images. Recently, the computer vision society discovered that the depth sensing technology of Kinect could be extended far beyond gaming and much cheaper than traditional 3-D cameras. In this paper, we review the recent developments of Kinect technologies from the perspective of computer vision. Figure \ref{fig1} illustrates a tree-structured taxonomy that this review follows. It indicates the type of vision problems that can be addressed or enhanced by means of the Kinect sensor. \cite{Enhanced}\\
+\end{multicols}
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=13cm]{1.png}
+\caption{Tree-structured taxonomy of this review.}
+\label{fig1}
+\end{figure}
+\begin{multicols}{2}
+\section{KINECT MECHANISM}
+Kinect refers to both the advanced RGB or depth sensing hardware, and the software-based technology that interprets the RGB or depth signals. Figure \ref{fig2} shows the arrangement of a Kinect sensor, consisting of an infrared projector, and IR camera and a color camera. The IR prohector casts an IR dot pattern into the 3-D scene. 
+\end{multicols}
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=10cm]{2.png}
+\caption{Hareware configureation of Kinect, on which we point out the location of each sensor. Additionally, two image samples captured by the RGB camera and the depth camera are provided.}
+\label{fig2}
+\end{figure}
+\bibliography{Enhanced}
+\end{document}
