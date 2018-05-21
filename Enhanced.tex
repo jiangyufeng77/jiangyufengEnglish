@@ -1,0 +1,50 @@
+\documentclass[a4paper]{article}
+\usepackage{indentfirst}
+\usepackage{graphicx,float}
+\usepackage{balance,multicol}
+\usepackage{cite}
+\setlength{\parindent}{2em}
+\title{Enhanced Computer Vision with Microsoft Kinect Sensor: A Review}
+\author{Yufeng Jiang}
+\date{\today}
+\bibliographystyle{IEEEtran}
+\begin{document}
+\maketitle
+\balance
+\begin{multicols}{2}
+\section{Kinect Software Tools}
+Kinect software refers to the Kinect developmment library and the algorithmic components included in the library. Currently, there are some aviliable tools including OpenNI, Microsoft Kinect SDK and OpenKinect. The Microsoft SDK is only available for Windows, but OpenNI can be used at multiplatform and its source is open. Table \ref{tab} gives a comparison between OpenNI and the Microsoft SDK about their algorithmic components. It is worth highlighting that the new version of OpenNI allows users th install Microsoft Kinect SDK on the same machine. And it also allows to run both packages using the the Microsoft Kinect driver. It means that the OpenNI is now compatible with the Kinect driver.\\
+\begin{table}[H]
+\centering
+\caption{Comparisons of the OpenNI Library and the Microsoft SDK}
+\label{tab}
+\begin{tabular}{p{6em}p{3em}p{4em}}
+  \hline
+    & OpenNI & Microsoft SDK \\ \hline
+  Camera calibration & $\surd$ & $\surd$ \\ \hline
+  Automatic body calibration & $\times$ & $\surd$ \\ \hline
+  Standing skeleton & $\surd$ & $\surd$ \\ \hline
+  Seated skeleton & $\times$ & $\surd$  \\ \hline
+  Body gesture recognition & $\surd$ & $\surd$ \\ \hline
+  Hand gesture analysis & $\surd$ & $\surd$ \\ \hline
+  Facial tracking & $\surd$ & $\surd$ \\ \hline
+  Scene analyzer & $\surd$ & $\surd$ \\ \hline
+  3-D scanning & $\surd$ & $\surd$ \\ \hline
+  Motor control & $\surd$ & $\surd$ \\ \hline
+\end{tabular}
+\end{table}
+\end{multicols}
+\begin{multicols}{2}
+\section{Kinect Performance Evaluation}
+There are a few papers that evalute the performance of Kinect from either the hardware or the software perspective. In \cite{E1} , the authors investigate the depth measurement of Kinect about resolution and precision from experiments. The result of this investigation reveals that Kinect is superior in accuracy to the TOF camera and close to a medium-resolrtion stereo camera.\\
+\section{Object Tracking and Recognition}
+In this section, authors begin our exploration of the technical principles, overview what Kinect can do and how people change and enhance related Kinect techniques in order to solve vision problems. Object detection and tracking are hot topics in RGB-based image and video analysis applications. With the availability of the low-cost Kinect depth camera, researchers establish a stable background model which is resistant to changes in illumination or lack of contrast. Figure \ref{fig} illustrates this.\\
+\end{multicols}
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=10cm]{1.png}
+\caption{(a) From the left to the right, RGB images, FG mask using RGB data and FG mask using depth data, respectively. The example on the top shows that it is hard to distinguish clothing from the background, and the one at the bottom reports the results when the person suddenly turns on the lighting. (b) True positive and false positive of FG detection by using depth data and RGB data respectively. Here, the lighting is stable but the foreground and background are similar.}
+\label{fig}
+\end{figure}
+\bibliography{E1}
+\end{document}
