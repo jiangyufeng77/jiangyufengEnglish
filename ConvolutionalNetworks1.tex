@@ -1,0 +1,44 @@
+\documentclass[10pt,letterpaper]{article}
+\usepackage{indentfirst}
+\usepackage{graphicx,float}
+\usepackage{balance,multicol}
+\usepackage{cite}
+\usepackage{amsmath}
+\usepackage{geometry}
+\geometry{left=2.0cm,right=2.0cm,top=2.5cm,bottom=2.5cm}
+\usepackage[colorlinks,linkcolor=red,anchorcolor=blue,citecolor=green]{hyperref}
+\setlength{\parindent}{2em}
+\title{Densely Connected Convolutional Networks}
+\author{Yufeng Jiang}
+\date{\today}
+\bibliographystyle{IEEEtranS}
+\begin{document}
+\maketitle
+\balance
+\begin{multicols}{2}
+\section{Introduction}
+Recently, researchers discovered that if convolutional networks contain shorter connections between layers close to the input and output, they can behave deeper, more accurate and more efficient. In this paper, authors accept this observation and add the Dense Convolutional Network. These new networks connect each layer to all other layers with a feed-forward way. Traditionally, convolutional networks with L layers have L connections, however, the new networks that will be introduced at this paper has $\frac{L(L+1)}{2}$ direction connections. DenseNets has a significant improvement at technology and takes a less computation to get a higher performance. Code and pre-trained models are availiable at \url{https://github.com/liuzhuang13/DenseNet.}\\
+Convolutional neural networks (CNNs) were introduced at 20 years ago firstly\cite{Backpropagation}. But its training of truly deep CNNs only recently because of the improvement in computer hardware and network structure. The original LeNet5 \cite{recognition} consisted of 5 layers, VGG festured 19 \cite{Imagenet}. As the deeper learning of the CNNs, there is a new problem needs to be addressed. When information about the input passes through many layers, it can disappear by the time it reaches the end of the network. ResNets \cite{Deep} and Highway Networks \cite{Training} translate the signal from this layer to next layer via identity connections. \\
+In this paper, authors propose an architecture that can observe the biggest information flow between layers in the network by connecting all layers directly. And each layer gets the extra input from all preceding layers and translates the features to all subsequent layers to preserve the feed-forward nature. Figure \ref{fig1} illustrates this layout schematically.\\
+\end{multicols}
+\begin{figure}[htbp]
+ \centering
+ \includegraphics[width=6cm]{1.jpeg}
+ \caption{A 5-layer dense block with a growth rate of k = 4. Each layer takes all preceding feature-maps as input.}
+ \label{fig1}
+\end{figure}
+\begin{multicols}{2}
+\section{DenseNets}
+Traditonal convolutional feed-forward networks connect the output of the $\ell^{th}$ layer as input to the $(\ell + 1)^{th}$ layer. ResNets \cite{Deep} add a skip-connection that bypasses the non-linear transformations with an identity function \eqref{1}:
+\begin{equation}
+x_{\ell} = H_{\ell}(x_{\ell-1}) + x_{\ell-1}
+\label{1} 
+\end{equation}
+We propose a different connnectivity modle to improve the information flow between layers. We use the direct conntection between every layer to all subsequent layers. Figure \ref{fig1} illustrates the layout of the resulting DenseNet. The $\ell^{th}$ layer receives the feature-maps of all preceding layers in eq.\eqref{2}.
+\begin{equation}
+x_{\ell} = H_{\ell}([x_0,x_1,\dots,x_{\ell-1}])
+\label{2}
+\end{equation} 
+\bibliography{jyf}
+\end{multicols}
+\end{document}
