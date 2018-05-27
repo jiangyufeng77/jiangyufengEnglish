@@ -1,0 +1,132 @@
+\documentclass[10pt,letterpaper]{article}
+\usepackage{times}
+\usepackage{epsfig}
+\usepackage{graphicx,float}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{multirow}
+\usepackage{makecell}
+\usepackage{color}
+\usepackage{indentfirst}
+\usepackage{balance,multicol}
+\usepackage{cite}
+\usepackage[pagebackref=true,breaklinks=true,letterpaper=true,colorlinks,bookmarks=false]{hyperref}
+\usepackage{geometry}
+\geometry{left=2.0cm,right=2.0cm,top=2.5cm,bottom=2.5cm}
+\setlength{\parindent}{1em}
+\title{Densely Connected Convolutional Networks}
+\author{Yufeng Jiang}
+\date{\today}
+\begin{document}
+\maketitle
+\balance
+\begin{multicols}{2}
+\section{Experiments}
+Authors empirically demonstrate DenseNet's effectiveness on several benchmark datasets and compare with state-of-the-are architectures. \\
+\subsection{Datasets}
+{\bf CIFAR.} The two CIFAR datasets consist of colored natural images with 32 $\times$ 32 pixels. The training and test sets contain 50000 and 10000 images respectively, and authors hold out 5000 training images as a validation set. For preprocessing, authors normalize the data using the channel means and standard deviations. For the final run authors use all 50000 training images and report the final test error at the end of training.\\
+{\bf SVHN.} The Street View House Numbers (SVHN) dataset contains 32 $\times$ 32 colored digit images. There are 73257 images in the training set, 26032 images in the test set, and 521131 images for additional training. Authors select the model with the lowest validation error during training and report the test error. \\
+\end{multicols}
+\begin{table}[H]
+\begin{center}
+\begin{tabular}{c|c|c|c|c|c|c|c}
+  \hline
+  Method & Depth & Params & C10 & C10+ & C100 & C100+ & SVHN \\ \hline
+
+  \makecell[l]{Network in Network~\cite{Network} \\ All-CNN~\cite{Dropout} \\ Deeply Supervised Net~\cite{Deeply} \\ Highway Network~\cite{Training}} & 
+  \makecell[c]{- \\ - \\ - \\ - } & 
+  \makecell[c]{- \\ - \\ - \\ -} & 
+  \makecell[c]{10.41 \\ 9.08 \\ 9.69 \\ -} & 
+  \makecell[c]{8.81 \\ 7.25 \\ 7.97 \\ 7.72} & 
+  \makecell[c]{35.68 \\ - \\ - \\ -} & 
+  \makecell[c]{- \\ 33.71 \\ 34.57 \\ 32.39} & 
+  \makecell[c]{2.35 \\ - \\ 1.92 \\ -} \\ \hline
+
+  \makecell[l]{FractalNet~\cite{Backpropagation} \\ with Dropout/Drop-path} & 
+  \makecell[c]{21 \\ 21} & 
+  \makecell[c]{38.6M \\ 38.6M} & 
+  \makecell[c]{10.18 \\ 7.33} & 
+  \makecell[c]{5.22 \\ 4.60} & 
+  \makecell[c]{35.34 \\ 28.20} & 
+  \makecell[c]{23.30 \\ 23.73} & 
+  \makecell[c]{2.01 \\ 1.87} \\ \hline
+
+  \makecell[l]{ResNet~\cite{Deep}}& 
+  110 & 1.7M & - & 6.61 & - & - & - \\ \hline
+
+  \makecell[l]{ResNet (reported by~\cite{Depth})} & 
+  110 & 1.7M & 13.63 & 6.41 & 44.74 & 27.22 & 2.01 \\ \hline
+
+  \makecell[l]{ResNet with Stochastic Depth~\cite{Depth} \\ \\ } & 
+  \makecell[c]{110 \\ 1202} & 
+  \makecell[c]{1.7M \\ 10.2M} & 
+  \makecell[c]{11.66 \\ -} &
+  \makecell[c]{5.23 \\ 4.91} &
+  \makecell[c]{37.80 \\ -} &
+  \makecell[c]{24.58 \\ -} &
+  \makecell[c]{1.75 \\ -} \\ \hline
+
+  \makecell[l]{Wide ResNet~\cite{Multi-scale} \\ \\ with Dropout} &
+  \makecell[c]{16 \\ 28 \\ 16} &
+  \makecell[c]{11.0M \\ 36.5M \\ 2.7M} &
+  \makecell[c]{- \\ - \\ -} &
+  \makecell[c]{4.81 \\ 4.17 \\ -} &
+  \makecell[c]{- \\ - \\ -} &
+  \makecell[c]{22.07 \\ 20.50 \\ -} &
+  \makecell[c]{- \\ - \\ 1.64} \\ \hline
+  
+  \makecell[l]{ResNet (pre-activation)~\cite{Identity} \\ \\ } &
+  \makecell[c]{164 \\ 1001} &
+  \makecell[c]{1.7M \\ 10.2M} &
+  \makecell[c]{11.26 \\ 10.56} &
+  \makecell[c]{5.46 \\ 4.62} &
+  \makecell[c]{35.58 \\ 33.47} &
+  \makecell[c]{24.33 \\ 22.71} &
+  \makecell[c]{- \\ -} \\ \hline
+  
+  \makecell[l]{DenseNet ($\kappa$ = 12) \\ DenseNet ($\kappa$ = 12) \\ DenseNet ($\kappa$ = 24)} &
+  \makecell[c]{40 \\ 100 \\ 100} &
+  \makecell[c]{1.0M \\ 7.0M \\ 27.2M} &
+  \makecell[c]{{\bf 7.00} \\ {\bf 5.77} \\ {\bf 5.83}} &
+  \makecell[c]{5.24 \\ {\bf 4.10} \\ {\bf 3.74}} &
+  \makecell[c]{{\bf 27.55} \\ {\bf 23.79} \\ {\bf 23.42}} &
+  \makecell[c]{24.42 \\ {\bf 20.20} \\ {\bf 19.25}} &
+  \makecell[c]{1.79 \\ 1.67 \\ {\color{blue} 1.59}} \\ \hline
+
+  \makecell[l]{DenseNet-BC ($\kappa$ =12) \\ DenseNet-BC ($\kappa$ =24) \\ DenseNet-BC ($\kappa$ =40)} & 
+  \makecell[c]{100 \\ 250 \\ 190} & 
+  \makecell[c]{0.8M \\ 15.3M \\ 25.6M} & 
+  \makecell[c]{{\bf 5.92} \\ {\color{blue} 5.19} \\ -} & 
+  \makecell[c]{4.51 \\ {\bf 3.62} \\ {\color{blue} 3.46}} & 
+  \makecell[c]{{\bf 24.15} \\ {\color{blue} 19.64} \\ -} & 
+  \makecell[c]{22.27 \\ {\bf 17.60} \\ {\color{blue} 17.18}} & 
+  \makecell[c]{1.76 \\ 1.74 \\ -} \\ 
+  \hline
+\end{tabular}
+\caption{Error rates on CIFAR and SVHN datasets. $\kappa$ denotes network’s growth rate. Results that surpass all competing methods are {\bf bold} and the overall best results are {\color{blue} blue}. + indicates standard data augmentation (translation and/or mirroring). All the results of DenseNets without data augmentation (C10, C100, SVHN) are obtained using Dropout. DenseNets achieve lower error rates while using fewer parameters than ResNet. Without data augmentation, DenseNet performs better by a large margin.}
+\label{tab}
+\end{center}
+\end{table}
+\begin{multicols}{2}
+{\bf ImageNet.} The ILSVRC 2012 classification dataset consists 1.2 million images for training, and 50000 for validation from 1000 classes. Authors adopt the same data augmentation scheme for training images as in~\cite{Deep,Identity}. Following~\cite{Deep,Depth}, authors report classification errors on the validation set. \\
+\section{Training} All the networks are trained using stochastic gradient descent (SGD). Respectively, on CIFAR and SVHN authors train using batch size 64 for 300 and 40 epochs. To reduce the memory consumption on GPUs, please refer to ahthors technical report on the memory-efficient implementation of DenseNet. \\
+Following~\cite{Network}, authors use a weight decay of $10^{-4}$ and a Nesterov momentum of 0.9 without dampening. Authors adopt the weight initialization introduced by~\cite{Identity}. The test errors were only evaluated once for each task and model setting.\\
+\section{Classification Results on CIFAR and SVHN}
+Authors train DenseNets with different depths, L, and growth rates, $\kappa$. The main results on CIFAR and SVHN are shown in Table \ref{tab}. To highlight general trends, authors mark all results that outperform the existing state-of-the-art in {\bf boldface} and the overall best result in {\color{blue} blue}.\\
+{\bf Accuracy.} Possibly the most noticeable trend may originate from the bottom row of Table~\ref{tab}, which shows that DenseNet-BC with L = 190 and $\kappa$ = 40 outperforms the existing state-of-the-art consistently on all the CIFAR datasets. On SVHN, the DenseNet with L = 100 and $\kappa$ = 24 also surpasses the current best result achieved by wide ResNet. This may be explained by that SVHN is a relatively easy task, and extremely deep models may overfit to the training set.\\
+{\bf Parameter Efficiency.}The results in Table~\ref{tab} indicate that DenseNets utilize parameters more efficiently than alternative architectures. Figure~\ref{fig} shows the training loss and test errors of these two networks on C10+. The 1001-layer deep ResNet converges to a lower training loss value but a similar test error. \\
+\end{multicols}
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[width=16cm]{1.png}
+\caption{Comparison of the DenseNets and ResNets top-1 error rates (single-crop testing) on the ImageNet validation dataset as a function of learned parameters (left) and FLOPs during test-time (right).}
+\label{fig}
+\end{center}
+\end{figure}
+\begin{multicols}{2}
+{\small
+\bibliographystyle{IEEEtranS}
+\bibliography{jyf}	
+}
+\end{multicols}
+\end{document}
