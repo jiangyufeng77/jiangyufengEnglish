@@ -1,0 +1,73 @@
+\documentclass[10pt,letterpaper]{article}
+\usepackage{times}
+\usepackage{epsfig}
+\usepackage{graphicx,float}
+\usepackage{indentfirst}
+\usepackage{balance,multicol}
+\usepackage{cite}
+\usepackage[pagebackref=true,breaklinks=true,letterpaper=true,colorlinks,bookmarks=false]{hyperref}
+\usepackage{geometry}
+\geometry{left=2.0cm,right=2.0cm,top=2.5cm,bottom=2.5cm}
+\setlength{\parindent}{1em}
+\title{Densely Connected Convolutional Networks}
+\author{Yufeng Jiang}
+\date{\today}
+\begin{document}
+\maketitle
+\balance
+\begin{multicols}{2}
+\section{Classification Results on CIFAR and SVHN}
+For example, our 250-layer model only has 15.3M parameters, but it consistently outperforms ohters models such as FractalNet and Wide ResNets that have more than 30M parameters. Figure~\ref{fig} (right panel) shows the training loss and test errors of these two networks on C10+. The 1001-layer deep ResNet converges to a lower training loss value but a similar test error.\\
+{\bf Overfitting.} One positive side-effect of the more efficient use of parameters is a tendency of DenseNets to be less prone to overfitting. On C10, the improvement denotes a 29\% relative reduction in error from 7.33\% to 5.19\%. On C100, the reduction is about 30\% from 28.20\% to 19.64\%. In this experiments, authors observed potential overfitting in a single setting: on C10, a 4 $\times$ growth of parameters produced by increasing $\kappa$ = 12 to $\kappa$ = 24 lead to a modest increase in error from 5.77\% to 5.83\%. \\ 
+\end{multicols}
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[width=15cm]{1.png}
+\caption{Left: Comparison of the parameter efficiency on C10+ between DenseNet variations. Middle: Comparison of the parameter efficiency between DenseNet-BC and (pre-activation) ResNets. DenseNet-BC requires about 1/3 of the parameters as ResNet to achieve comparable accuracy. Right: Training and testing curves of the 1001-layer pre-activation ResNet~\cite{Identity} with more than 10M parameters and a 100-layer DenseNet with only 0.8M parameters.}
+\label{fig}
+\end{center}
+\end{figure}
+\begin{multicols}{2}
+\section{Classification Results on ImageNet}
+Authors evaluate DenseNet-BC with different depths and growth rates on the ImageNet classification task, and compare it with state-of-the-art ResNet architechtures. To ensure a fair comparison between the two architectures, authors eliminate all other factors such as differences in data preprocessing and optimization settings by adopting the publicly available Torch implementation for ResNet by~\cite{Maxout}\footnote{\url{https://github.com/facebook/fb.resnet.torch}}\\
+\indent Authors report the single-crop and 10-crop validation errors of DenseNets on ImageNet in Table \ref{tab}. Figure \ref{fig2} shows the single-crop top-1 validation errors of DenseNets and ResNets as a function of the number of parameters (left) and FLOPs (right). The results presented in the figure reveal that DenseNets perform on par with the state-of-the-art ResNets. For example, a DenseNet-201 with 20M parameters model yields similar validation error as a 101-layer-ResNet with more than 40M parameters\\
+\indent It is worth noting that this experimental setup implies that authors use hyperparameter settings that are optimized for ResNets but not for DenseNets. It is conceivable that more extensive hyper-parameter searches may further improve the performance of DenseNet on ImageNet.\\
+\end{multicols}
+
+\makeatletter\def\@captype{table}\makeatother 
+\begin{minipage}{.35\linewidth}
+\centering
+\renewcommand{\arraystretch}{1.6}
+\begin{tabular}{c|c|c}
+  \hline
+  Model & top-1 & top-5 \\ \hline
+  DenseNet-121 & 25.02 / 23.61 & 7.71 / 6.66 \\ 
+  DenseNet-169 & 23.80 / 22.08 & 6.85 / 5.92 \\ 
+  
+  DenseNet-201 & 22.58 / 21.46 & 6.34 / 5.54 \\ 
+  
+  DenseNet-264 & 22.15 / 20.80 & 6.12 / 5.29  \\ \hline
+\end{tabular}
+\caption{The top-1 and top-5 error rates on the ImageNet validation set, with single-crop / 10-crop testing.}
+\label{tab}
+\end{minipage}
+\makeatletter\def\@captype{figure}\makeatother 
+\begin{minipage}{.65\linewidth}
+\centering
+\includegraphics[scale=0.5]{2.png}
+\caption{ Comparison of the DenseNets and ResNets top-1 error rates (single-crop testing) on the ImageNet validation dataset as a function of learned parameters (left) and FLOPs during test-time (right).}
+\label{fig2}
+\end{minipage}
+
+\begin{multicols}{2}
+\section{Discussion}
+As a direct consequence of the input concatenation, the feature-maps learned by any of the DenseNet layers can be accessed by all subsequent layers. This encourages feature reuse throughout the network, and leads to more compact models.\\
+\\
+{\bf Model compactness.} The left two plots in Figure \ref{fig} show the result of an experiment that aims to compare the parameter efficiency of all variants of DenseNets (left) and also a comparable ResNet architecture (middle). In comparison with other popular network architectures, such as AlexNet~\cite{Imagenet} or VGG-net~\cite{Pedestrian}, ResNets with pre-activation use fewer parameters while typically achieving better results~\cite{Identity}. Hence, authors compare DenseNet ($\kappa$ = 12) against this architecture. The training setting for DenseNet is kept the same as in the previous section.\\
+\indent The graph shows that DenseNet-BC is the most parameter efficient variant of DenseNet. This result is in line with the results on ImageNet presented in Figure \ref{fig2}. The right plot in Figure \ref{fig} shows that a DenseNet-BC with only 0.8M trainable parameters is able to achieve comparable accuracy as the 1001-layer ResNet~\cite{Identity} with 10.2M parameters.
+{\small
+\bibliographystyle{IEEEtran}
+\bibliography{jyf}	
+}
+\end{multicols}
+\end{document}
