@@ -1,0 +1,65 @@
+\documentclass[10pt,twocolumn,letterpaper]{article}
+
+\usepackage{cvpr}
+\usepackage{times}
+\usepackage{epsfig}
+\usepackage{graphicx,float}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{balance}
+\usepackage{indentfirst}
+\usepackage{cite}
+\usepackage[pagebackref=true,breaklinks=true,letterpaper=true,colorlinks,bookmarks=false]{hyperref}
+\setlength{\parindent}{1em}
+% \cvprfinalcopy % *** Uncomment this line for the final submission
+\cvprfinalcopy
+\def\cvprPaperID{****} % *** Enter the CVPR Paper ID here
+\def\httilde{\mbox{\tt\raisebox{-.5ex}{\symbol{126}}}}
+% Pages are numbered in submission mode, and unnumbered in camera-ready
+\begin{document}
+\title{A Genetic Algorithm-Based Solver for Very Large Jigsaw Puzzles
+}
+\author{Yufeng Jiang}
+\date{\today}
+\maketitle
+\balance
+
+\begin{abstract}
+In this paper, authors propose the first effective automated and genetic algorithm (GA)-based jigsaw puzzle solver. Authors mentioned a new procedure to conbine assembled puzzle segments. The solver proposed exhibits state-of-the-art performance solving previously attempted puzzles faster and far more accurately, and also puzzles of size never before attempted.
+\end{abstract}
+\section{Introduction}
+The problem domain of jigsaw puzzles is widely known to almost every human being from childhood. Given n different non-overlapping pieces of an image, the player has to reconstruct the original image, taking advantage of both the shape and chromatic ingormation of each piece. Although this popular game was proven to be an NP-complete problem~\cite{Solving,Jigsaw}, it has been played successfully by children worldwide. Solutions to this problem might benefit the fields of biology~\cite{Mitochondrial}, literature~\cite{Literary}, archeology~\cite{System,Computer}, image editing~\cite{Patch}. Besides, the jigsaw puzzle problem may and should be researched for the sole reason that it stirs pure interest.\\
+\indent Jigsaw puuzzles were first produced around 1760 by John Spilsbury, a Londonian engraver and mapmaker. The first attempt by the scientific community to computationally solve the problem is attributed to Freeman and Garder~\cite{Puzzles}. Even since then, the research focus regarding the problem has shifted from shape-based to merely color-based solvers of square-tile puzzles. In 2010 Cho \emph{et al.}~\cite{Probabilistic} presented a probalilistic puzzles solver that could handle up to 432 pieces, given some a priori knowledge of the puzzle.\\
+\indent In this paper authors harness the powerful technique of genetic algorithms (GAs) as a strategy for piece placement. Authors offer three major contributions. Firstly, they present a significantly more accurate solver of the original jigsaw variant with known piece orientation and puzzle dimensions, as shwon in Figure\ref{fig1}. Secondly, they assemble a new benchmark, consisting of sets of larger images, which they make public to the community.\\
+
+\section{Genetic algorithms}
+A GA is a search procedure inside a problem’s solution domain. Since examining all possible solutions of a spe- cific problem is usually considered infeasible, GAs offer an optimization heuristic inspired by the theory of natural selection.\\
+\indent The success of a GA is mainly dependent on choosing an appropriate chromosome representation, crossover oper- ator, and fitness function. The chromosome representation and crossover operator must allow the merge of two good solutions to an even better solution. The fitness function must correctly detect chromosomes containing promising solution parts to be passed on to the next generations.\\
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=6cm]{1.jpeg}
+\caption{Jigsaw puzzles before and after reassembly using our genetic algorithm-based solver. We believe these puzzles, of 10,375 (a-b) and 22,834 pieces (c-d), to be the largest automatically solved to date.}
+\label{fig1}
+\end{figure}
+\begin{figure*}
+\begin{center}
+\includegraphics[width=14cm]{2.jpeg}
+\end{center}
+\caption{Illustration of crossover operation: Given (a) Parent1 and (b) Parent2, (c) – (g) depict how a kernel of pieces is gradually grown until (h) a complete child. Note the detection of parts of the tower in both parents, which are then shifted and merged to the complete tower; shifting of images during kernel growing is due to piece position independence.}
+\label{fig2}
+\end{figure*}
+\section{GA-based puzzle solver}
+As previously noted, the GA contains a population of chro- mosomes, each of which represents a possible solution to the problem at hand. Having provided a framework overview, we now describe in greater detail the various critical components of the GA proposed, e.g. the chromosome representation, fitness function, and crossover operator. Authors refer to a measure which predicts the likelihood of two pieces to be adjacent in the original iamges as compatibility. Cho \emph{et al.}~\cite{Probabilistic} explored five possible compatibility measures, of whtch the dissimilarity measure of Eq.~\ref{eq1} was shown to be the most discriminative. \\
+\indent Given two parent chromosomes, the crossover operator constructs a child chromosome in a kernel-growing fashion, using both parents as consultants. The operator starts with a single piece and gradually joins other pieces at available boundaries. New pieces may be joined only adjacently to existing pieces, so that the emerging image is always contiguous. The operator keeps adding pieces from a bank of available pieces until there are no more pieces left. Hence, every piece will appear exactly once in the resulting image. Since the image size is known in advance, the operator can ensure no boundary violation. Thus, by using every piece exactly once inside of a frame of the correct size, the operator is guaranteed of achieving a valid image. Figure \ref{fig2}illustrates the above kernel-growing process.
+\begin{equation}
+D(x_i,x_j,r) = \sqrt{\sum_{k=1}^K \sum_{b=1}^3(x_i(k,K,b) - x_j(k,l,b))^2}
+\label{eq1}
+\end{equation}
+
+
+{\small
+\bibliographystyle{ieee}
+\bibliography{jyf}
+}
+
+\end{document}
