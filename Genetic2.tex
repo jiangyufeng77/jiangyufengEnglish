@@ -1,0 +1,77 @@
+\documentclass[10pt,twocolumn,letterpaper]{article}
+
+\usepackage{cvpr}
+\usepackage{times}
+\usepackage{epsfig}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{makecell}
+\usepackage{balance}
+\usepackage{indentfirst}
+\usepackage{cite}
+\usepackage[pagebackref=true,breaklinks=true,letterpaper=true,colorlinks,bookmarks=false]{hyperref}
+\setlength{\parindent}{1em}
+% \cvprfinalcopy % *** Uncomment this line for the final submission
+\cvprfinalcopy
+\def\cvprPaperID{****} % *** Enter the CVPR Paper ID here
+\def\httilde{\mbox{\tt\raisebox{-.5ex}{\symbol{126}}}}
+\ifcvprfinal\pagestyle{empty}\fi
+% Pages are numbered in submission mode, and unnumbered in camera-ready
+\begin{document}
+\title{A Genetic Algorithm-Based Solver for Very Large Jigsaw Puzzles
+}
+\author{Yufeng Jiang}
+\date{\today}
+\maketitle
+\section{Our proposed solution}
+Now remains the question of which piece of select from the available pieces bank and where to locate it in the child. A piece boundary is denoted by a pair ($x_i$, R), consisting of the piece number and a spatial relation. Given all existing boundaries, the operator checks whether there exists a piece boundary for which both parent agree on a piece $x_j$. If such a pixel exists, then it is placed in the correct location. If the parents agree on two or more boundaries, one of them is chosen at random and the respective piece is assigned. If there is no agreement between the parents on any piece at any boundary, the second phase begins. To understand this phase, first introduced by Pomeranz \emph{et al.}~\cite{Fully} The pieces $x_i$ and $x_j$ are said to best-buddies if 
+\begin{gather}
+\forall x_k \in Pieces, C(x_i, x_j, R_1)\ge C(x_i, x_k, R_1) \\
+and \notag \\
+\forall x_p \in Pieces, C(x_j, x_i, R_2) \ge C(x_j, x_p, R_2)
+\end{gather}
+where $Pieces$ is the set of all given image pieces and $R_1$ and $R_2$ are complementary spatial relations. In the second phase the operator checks whether one of the parents contains a piece $x_j$ in spatial relation $R$ of $x_i$ which is also a best-buddy of $x_i$ in that relation. If so, the piece is chosen and assigned. As before, if multiple best-buddy pieces are available, one is chosen at random. If a best-buddy piece is found but was already assigned, it is ignored and the search continues for other best-buddy pieces. Finally, if no best-buddy piece exists, the operator randomly selects a boundary and assigns it the most compatible piece available. To introduce mutation in the first and last phase the operator places, with low probability, an available piece at random, instead of the most compatible relevant piece available.\\
+\indent In summary, the operator uses repeatedly a three-phase procedure of piece selection and assignment, placing first agreed pieces, followed by best-buddy pieces and finally by the most compatible piece abailable. An assignment is only considered at relevant boundaries to maintain the contiguity of the kernel-growing image. The procedure returns to the first phase after every piece assignment due to the prospective creation of new boundaries. \\
+\subsection{Rationale}
+In a GA framework, good traits should be passed on to the child. Here, since position independence of pieces is encouraged, the trait of interest is captured by a piece's set of neighbors. Correct puzzle segments correspond to a correct placement of pieces next to each other. The notion that piece $x_i$ is in spatial relation $R$ to piece $x_j$ is key to solving the jigsaw problem. Nevertheless, every chromosome accounts for a complete placement of all the pieces. Taking into account the random nature of the first generation, the procedure must actively seek the better traits of piece relations. 
+\begin{figure*}
+\begin{center}
+\includegraphics[width=16cm]{1.png}
+\end{center}
+\caption{Shifted puzzle solutions. All images are solutions created by our GA. The accuracy for each solution is 0\% according to the direct comparison, but over 95\% according to the (more reasonable) neighbor comparison. Amazingly, the dissimilarity of each solution is smaller than that of its original image counterpart.}
+\label{fig}
+\end{figure*}
+\begin{table}
+\begin{center}
+\begin{tabular}{|c|c|c|c|c|}
+  \hline
+  \makecell[c]{\# \\ of Pieces} &  \makecell[c]{Avg. \\ Best} & 
+  \makecell[c]{Avg. \\ Worst} & \makecell[c]{Avg. \\ Avg.} &  
+  \makecell[c]{Avg. \\ Std. Dev.} \\ 
+  \hline \hline
+  432 & 86.19\% & 80.56\% & 82.94\% & 2.62\% \\ \hline
+  540 & 92.75\% & 90.57\% & 91.65\% & 0.65\% \\ \hline
+  805 & 94.67\% & 92.79\% & 93.63\% & 0.62\% \\ \hline
+  2360 & 85.73\% & 82.73\% & 84.62\% & 0.86\% \\ \hline
+  3300 & 89.92\% & 65.42\% & 86.62\% & 7.19\% \\ \hline
+  5015 & 94.78\% & 90.76\% & 92.04\% & 1.74\% \\ \hline
+  10375 & 97.69\% & 96.08\% & 97.12\% & 0.45\% \\ \hline
+  22834 & 92.02\% & 91.46\% & 91.74\% & 0.28\% \\ \hline
+\end{tabular}
+\end{center}
+\caption{Results of running the GA 10 times on every image in every set under direct comparison; the best, worst, and average scores were recorded for every image.}
+\label{tab}
+\end{table}
+\section{Experimental results}
+Cho \emph{et al.}~\cite{Probabilistic} introduced three measures to evaluate the correctness of an assembled puzzle, two of which were repeatedlly used in previous works. The direct method has been repeatedlly denounced \cite{Fully} as being both less accurate and less meaningful due to its inability to cope with slightly shifted puzzle solutions. Figure \ref{fig} illustrates the drawbacks of the direct comparison and the superority of the neihbor comparison. Note that a piece arrangement scoring 100\% according to one of the methods is, by definition, the full reconstruction of the original image and will also achieve a score of 100\% when measured by the other method. Thus, unless stated otherwise, all results are under neighbor comparison. For the sake of completeness, our results under direct comparison are reported in Table \ref{tab}.\\
+\balance
+In each generation we retain the best 4 chromosomes. The rest of the population is generated by the crossover operator described earlier with a mutation rate of 5\%. Parent chromosomes are chosen by the roulette wheel selection, producing a single offspring in each crossover. The GA always runs for exactly 100 generations. We ran the proposed GA on the set of images supplied by Cho \emph{et al.}~\cite{Probabilistic} and all sets supplied by Pomeranz \emph{et al.}~\cite{Fully}, testing puzzles of 28 $\times$ 28-pixel patches according to the traditional convention.
+\section{Discussion and future work}
+In this paper authors presented an automatic jigsaw puzzle solver, far more accurate than any existing solver and capable of reconstructing puzzles of up to 22834 pieces. We also created new sets of large images to be used for benchmark testing for this and other solvers, and supplied both the image sets and our results for the benefit of the community~\cite{Datasets}.\\
+Authors have achieved the first effective genetic algorithm-based solver, which appears to challenge state-of-the-art performance of other jigsaw puzzle solvers. By introducing a novel crossover technique, they were able to arrive at an effective solver.
+{\small
+\bibliographystyle{ieee}
+\bibliography{jyf}
+}
+\end{document}
