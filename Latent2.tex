@@ -1,0 +1,82 @@
+\documentclass[10pt,twocolumn,letterpaper]{article}
+
+\usepackage{cvpr}
+\usepackage{times}
+\usepackage{epsfig}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{makecell}
+\usepackage{balance}
+\usepackage{indentfirst}
+\usepackage{cite}
+\usepackage[pagebackref=true,breaklinks=true,letterpaper=true,colorlinks,bookmarks=false]{hyperref}
+\setlength{\parindent}{1em}
+% \cvprfinalcopy % *** Uncomment this line for the final submission
+\cvprfinalcopy
+\def\cvprPaperID{****} % *** Enter the CVPR Paper ID here
+\def\httilde{\mbox{\tt\raisebox{-.5ex}{\symbol{126}}}}
+\ifcvprfinal\pagestyle{empty}\fi
+% Pages are numbered in submission mode, and unnumbered in camera-ready
+\begin{document}
+\title{Latent Task Adaptation with Large-scale Hierarchies}
+\author{Yufeng Jiang}
+\date{\today}
+\maketitle
+\section{Generating Query Images}
+Given a task, authors assume that the query images they encounter are then randomly sampled from the object calsses that belong to the given task. For each query image, they first sample the object class label from the set of possible labels that belong to the task. The conditional probability $P(y_i|h)$ follows from assuming strong sampling \cite{Generalization}: labels are generated uniformly at random using the corresponding parameter $\beta _h$ as follows: \\
+\[
+ P(y_i|h) = \beta _hy_i = 
+\begin{cases}
+1/|h|, & \text{if}~task~h~contains~label~y_i \\
+0, & \text{otherwise} \tag{1}  
+\end{cases}
+\]
+where $|h|$ is the size of the number of lesf node classes in the task. The size principle plays a critical role in inferrring the latent task, as larger tasks will fenerate lower probabilities for each individual object class.\\
+\indent To generate an actual image $x_i$ frm a given class label $y_i$, it  is relatively difficult to fully model the conditional probability $P(x_i|y_i)$ to the pixel level of the images. Thus, authors use a mixed approach by having a classifier trained on all the leaf node objects, and obtain the classifier prediction\\
+\begin{gather*}
+f(x_i) = argmax _j~~~\theta_j^T x_i, \tag{2}
+\end{gather*}
+where they simplify the notation by using $x_i$ as both the image and the feature extracted from it, and assuming that a linear classifier with parameter $\{\theta_j\}_{j=1}^K$ is used. The conditional probability is then defined as\\
+\begin{gather*}
+P(x_i|y_i)=C_{y_if(x_i)} \tag{3}
+\end{gather*}
+where C is the confusion matrix of the classsifier, and $C_{ij}$ is the probability that an image of object class $i$ is classified as class $j$.\\
+\indent Given a set of testing images $X~=~\{x_1,x_2,\dots,x_N\}$, they goal is to jointly identify the hidden task $h$ and the hidden labels $Y~=~\{y_1,y_2,\dots,y_N\}$ that maximizes the poserior probability\\
+\begin{gather*}
+(\hat{h},\hat{Y})~=~argmax~P(h,Y|X) \tag{4}
+\label{eq4}
+\end{gather*}
+Authors will discuss in the next section how the various parameters, especially the parameters $\theta$ for the classifiers and the confusion matrix $C$, can be estimated from training data, and how to carry out efficient inference to find the solution to Eqn.~\ref{eq4}
+\section{Efficient Learning and Inference}
+The probabilistic model involves multiple parameters to be estimated and nested hidden variables during the inference phase. In this section, authors present a novel approach to estimate the confusion matrix for the classifier, and a linear-time inference algorithm that jointly identifies the latent task and predictions for individual images.\\
+\indent Instead of these methods, authors propose to approximate its leave-one-out (LOO) error on the training data with a simple gradient descent step to ``unlearn'' each image to estimate its LOO prediction, similar to the early unlearning ideas \cite{Word} proposed for neural networks. They will focus on the use of multinomial logistic regression, which minimizes $\mathcal{L}(\theta)~=~\lambda||\theta||_2^2-\sum_{i=1}^M t_i \log u_i$, where $t_i$ is a 0-1 indicator vector where only the $y_i-th$ elememt is l, and $u_i$ is the softmax of the linear outputs $u_{ij}=exp(\theta_j^Tx_i)/\sum_{j'=1}^K=exp(\theta_{j'}^Kx_i)$, with $x_i$ being the feature for the $i$-th training image.\\
+\indent Specifically, given the trained classifier parameters $\theta$, it is safe to assume that the gradient $g(\theta) = 0$. Thus, the gradient for the logistic regression loss when removing a training image $x_i$ could be computed simply as $g_{x_i}(\theta) = (u_i - t_i)x_i^T$. Given the Hessian matrix {\bf H} at $\theta$, one can perform one-step quasi-Newton least-square update as \footnote{In practice we used the accumulated matrix {\bf H} obtained from Adagrad \cite{Learning} as a good approximation of the Hessian matrix. See supplementary material for details.}\\
+\begin{gather*}
+\theta_{x_i} = \theta - \rho' H^2 g_{x_i} \tag{5}
+\end{gather*}
+Note that they put an additional step size $\rho'$ instead of $\rho' = 1$ as would be the case for exact least squares. They set $\rho'$ to the value that yields the same LOO approximation accuracy as the validation accuracy. \\
+\balance
+\section{Adapting Classifiers with Known Tasks}
+An important question to ask is, even if they are allowed to retrain task-specific classifiers, do they want to do the retraining? Authors first analyze the benefits of retraining versus their adaptation method. To this end, they specify 5 subtrees from the ILSVRC hierarchy: {\tt building, dogs, feline, home appliance}, and {\tt vehicle}. They explicitly trained classifiers on these three subtrees only, and compared the retrained accuracy against their adapted classifier with the given task. They also test the naive baseline that uses the raw 1000 class predictions, and the forced choice baseline (FC) which simply selects the class under the task that has the largest output from the original classifiers. Table \ref{tab} summarizes the performance of the algorithms.\\
+\begin{table}
+\begin{center}
+\begin{tabular}{c|cccc}
+ \hline
+ Task & Naive & Retraining & FC & Ours \\ \hline
+ {\tt building} & 55.48 & 78.67 & 81.48 & {\bf 82.19} \\ 
+ {\tt dog} & 35.37 & 39.94 & 42.95 & {\bf 43.76} \\
+ {\tt feline} & 47.13 & 61.07 & 62.67 & {\bf 63.54} \\
+ {\tt home app} & 50.78 & 67.30 & 69.26 & {\bf 70.52} \\
+ {\tt vehicle} & 55.62 & 61.43 & {\bf 63.41} & 63.28 \\
+ \hline
+\end{tabular}
+\end{center}
+\caption{Classification accuracy on given tasks (subtrees) of the whole ILSVRC data.}
+\label{tab}
+\end{table}
+{\small
+\bibliographystyle{ieee}
+\bibliography{latent2}
+}
+\end{document}
