@@ -1,0 +1,98 @@
+\documentclass[10pt,twocolumn,letterpaper]{article}
+
+\usepackage{cvpr}
+\usepackage{times}
+\usepackage{epsfig}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{multirow}
+\usepackage{balance}
+\usepackage[pagebackref=true,breaklinks=true,letterpaper=true,colorlinks,bookmarks=false]{hyperref}
+
+\cvprfinalcopy
+\def\cvprPaperID{****} % *** Enter the CVPR Paper ID here
+\def\httilde{\mbox{\tt\raisebox{-.5ex}{\symbol{126}}}}
+
+% Pages are numbered in submission mode, and unnumbered in camera-ready
+\ifcvprfinal\pagestyle{empty}\fi
+\begin{document}
+\title{Latent Task Adaptation with Large-scale Hierarchies}
+\author{Yufeng Jiang}
+\date{\today}
+\maketitle
+\section{Linear Time MAP Inference}
+A conventional way to do probabilistic inference with nested latent variables is to use variational inference or Gibbs sampling to find a lower bound of the posterior probability. This, however, may involve multiple iterations over the hidden variables and may be slow. Authors show that when the latent task space is organized in a DAG structure, the exact MAP solution could be found with an efficient dynamic programming algorithm that has complexity linear to the number of possible tasks.
+
+They first note that the logarithm of posterior probability could be expanded as\\
+\begin{gather*}
+\log P(h,\mathcal{Y}|\mathcal{X}) \varpropto \log\alpha_h + \sum_{i=1}^N \log(\beta_{hy_i}C_{y_if(x_i)}). \tag{1}
+\end{gather*}
+Notice that the size constraint defining the latent task space gives as $\beta_{hy_i} = \frac{1}{|h|}I(y_i \in h)$, the equation above could further be written as\\
+\begin{gather*}
+\log \alpha_h - N\log|h| + \sum_{i=1}^n(\log C_{y_if(x_i)} + \log I(y_i \in h)), \tag{2}
+\end{gather*}
+where one can observe that $h$ and $\mathcal{Y}$ decouples except for the $I(y_i \in h)$ term. As the latent tasks are organized as a tree-based hierarchy, they can define auxiliary functions\\
+\begin{gather*}
+q_i(h) = \max_\text{y}[\log C_{y_if(x_i)} + \log I(y_i \in h)], \tag{3}
+\end{gather*}
+which could be computed recursively as\\
+\begin{gather*}
+q_i(h) = max_{\{h'\in child(h)\}}q_i(h'), \tag{4}
+\end{gather*}
+where $child(h)$ is the set of children of $h$ in the tree. Finally, the latent task could be estimated as\\ 
+\begin{gather*}
+\hat{h} = \mathop{\arg\max}_{h}[\log(\alpha_h) - N\log |h| + \gamma \sum_{i=1}^N q_i(h)], \tag{5}
+\end{gather*}
+and the corresponding $\hat{y}_i$s could be identified by taking the $argmax$ of the corresponding $q_i(h)$.
+
+\section{Experiments}
+
+Authors conduct their experiment on the ILSVRC 2010 dataset \cite{Fei}, where both validation and test data are available. For all the experiments, they learn the parameters of the model on the training and validation data, and report the performance on the test images.
+
+They note that more comprehensive features and better classification pipelines may lead to better 1-vs-all accuracy on ImageNet, but it is not the main goal of the paper, as they focus on the adaptation on top of the base classifiers. Recent efforts on learning better classifiers, such as the ones presented in \cite{High,ImageNet} could be seamlessly incorporated into their learning framework for general performance increases.
+
+The encoded features were then max pooled over 10 spatial bins: the whole image and the 3 $\times$ 3 regular grid. This yielded 160K feature dimensions per image, and a total of about 1.5TB for the training data in double precision format. The overall performance is 41.33\% top-1 accuracy and a 61.91\% top-5 accuracy on the validation data, and 41.28\% and 61.69\% respectively on the testing data. For the computation time, training with their toolbox took only about 24 hours with 10 commodity computers connected on a LAN. Their toolkit is implemented in Python and will be publicly available\footnote{\url{http://www.eecs.berkeley.edu/~jiayq/}}, and they refer to the supplementary materials for more technical details.
+\balance
+\subsection{Estimating the Confusion Matrix}
+
+An good estimation of the confusion matrix C is crucial for the probabilistic inference. Authors evaluate the quality of different estimations using the test data: for each tesing pair $(y,\hat{y})$, where $\hat{y}$ is the classifier output, its probability is given by the confusion mateix entry $C_{y\hat{y}}$. THe perplexity measure \cite{What} then evaluates how ``surprising'' the confusion matrix sees the testing data results (a smaller value indicates a better fit):\\
+\begin{gather*}
+prep = Power(2,(\sum_{i=1}^{N_{te}} \log_2C_{y_i\hat{y}_i})/N_{te}), \tag{6}
+\end{gather*}
+where $N_{te}$ is the number of testing images. Overall, they obtained a perplexity of 46.27 using our unlearning algorithm, while the validation data gave a value of 68.36 and the training data gave 94.69, bothe worse than their unlearning algorithm.
+\begin{table}
+\begin{center}
+\begin{tabular}{c|cc|cc}
+ \hline
+ \multirow{2}{*}{Method} & \multicolumn{2}{c|}{query size=5} & \multicolumn{2}{c}{query size=100} \\ \cline{2-5} & $s(h,\hat{h})$ & Accuracy & $s(h,\hat{h})$ & Accuracy \\
+ \hline
+ Naive & 1.54 & 42.75 & 1.50 & 42.68 \\ 
+ Proto & 8.14 & 443.16 & 60.39 & 50.28 \\
+ Hist & 22.21 & 44.84 & 96.61 & 59.87 \\
+ Hedging & 39.12 & 44.81 & 50.34 & 51.83 \\
+ Ours & {\bf 84.43} & {\bf 65.89} & {\bf 99.37} & {\bf 70.70} \\
+ \hline 
+ Oracle & 100.0 & 70.36 & 100.0 & 70.88 \\
+ \hline
+\end{tabular}
+\end{center}
+\caption{The average task overlap score and the average accuracy for the algorithms, under query sizes 5 and 100 respectively. All numbers are in percentage. The last row provides the oracle performance in which the ground truth task is given.}
+\label{tab}
+\end{table}
+\begin{figure}[t]
+\begin{center}
+\includegraphics[width=8cm]{1.png}
+\end{center}
+\caption{Classification accuracy (left) and the task overlap score (right) with different query set sizes for our method and the baselines.}
+\label{fig}
+\end{figure}
+
+Table \ref{tab} summarizes the performance of the methods above with a small query set size and a relatively large size. Further, Figure \ref{fig} shows the performance when we vary the size from 1 to 500. It could be observed that when we have a reasonable amount of testing queries, identifying the latent task leads to a significant performance gain than the baseline method that does classification against all possible labels, with an increase of near 30\% percent. Even with a small query size, the performance gain is already noticably high, indicating the ability of the algorithm to perform task adaptation with very few images from the latent task.
+
+{\small
+\bibliographystyle{ieee}
+\bibliography{latent3}
+}
+
+\end{document}
