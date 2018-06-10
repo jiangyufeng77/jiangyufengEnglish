@@ -1,0 +1,124 @@
+\documentclass[10pt,twocolumn,letterpaper]{article}
+
+\usepackage{cvpr}
+\usepackage{times}
+\usepackage{epsfig}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{multirow}
+\usepackage{balance}
+\usepackage{makecell}
+\usepackage[pagebackref=true,breaklinks=true,letterpaper=true,colorlinks,bookmarks=false]{hyperref}
+
+\cvprfinalcopy
+\def\cvprPaperID{****} % *** Enter the CVPR Paper ID here
+\def\httilde{\mbox{\tt\raisebox{-.5ex}{\symbol{126}}}}
+
+% Pages are numbered in submission mode, and unnumbered in camera-ready
+\ifcvprfinal\pagestyle{empty}\fi
+\begin{document}
+\title{A Comparative Study of Modern Inference Techniques for Discrete Energy Minimization Problems}
+\author{Yufeng Jiang}
+\date{\today}
+\maketitle
+
+\begin{abstract}
+Seven years ago, Szeliski published an influential study on energy minimization methods for Markov random fields (MRF). This study provided valuable insights in choosing the best optimization technique for certain classes of problems.
+
+While these insights remain generally useful today, the phenominal success of random field models means that the kinds of inference problems authors solve have changed significantly. Specifically, the models today often include higher order interactions, flexible connectivity structures, large label-spaces of different cardinalities, or learned energy tables. To reflect these changes, they provide a modernized and enlarged study. They present an empirical comparison of 24 state-of-art techniques on a corpus of 2300 energy minimization instances from 20 diverse computer vision applications. To ensure reproducibility, they evaluate all methods in the OpenGM2 framework and report extensive results regarding runtime and solution quality. Key insights from our study agree with the results of Szeliski for the types of models they studied.
+\end{abstract}
+
+\section{Introduction}
+
+Discrete energy minimization problems, in the form of factor graphs, or equivalently Markov or Conditional Random Field models (MRF/CRF) are a mainstay of computer vision research. Their applications are diverse and range from image denoising, segmentation, motion estimation, and stereo, to object recognition and image editing. To give researchers some guidance as to which optimization method is best suited for their MRF model, Szeliski \emph{et al.}\cite{comparative} conducted a comparative study on 4-connected MRF models. Along with the study, they provided a unifying software framework that facilitates a fair comparison of optimization techniques. The study was well-received in our community and has now been cited more than 600 times.
+
+{\bf Contributions} We provide a modernized, follow-up study of \cite{comparative} with the following aspects: {\bf (i)} A broad collection of state-of-the-art models and inference methods. {\bf (ii)} All models and inference techniques were wrapped into a uniform software framework, OpenGM2 \cite{OpenGM2}, for reproducible benchmarking. They will be made publicly available on the project webpage\footnote{\url{ http://hci.iwr.uni- heidelberg.de/opengm2/}}. {\bf (iii)} Comprehensive and comparative evaluation of methods, along with a summary and discussion. {\bf (iv)} Auhtors enable researchers to experiment with recent state-of-the-art inference methods on their own models.
+
+\begin{table*}
+\begin{center}
+\begin{tabular}{|>{\centering}m{0.3cm}|p{4cm}<{\centering}||c|p{3cm}<{\centering}|p{1.5cm}<{\centering}|p{1cm}<{\centering}|p{2cm}<{\centering}|p{2cm}<{\centering}|}
+  \hline
+  \rotatebox{90}{} & modelname & \# & {\bf variables} & {\bf labels} & {\bf order} & {\bf structure} & {\bf functiontype} \\
+  \hline \hline
+  \multirow{7}{*}{\rotatebox{90}{\bf Pixel}} & 
+  \makecell{mrf-stereo \\ mrf-inpainting \\ mrf-photomontage \\ color-seg-N4 \\ inpainting-N4 \\ object-seg} & 
+  \makecell{3 \\ 2 \\ 2 \\ 9 \\ 2 \\ 5} & 
+  \makecell{$\sim$100000 \\ $\sim$ 50000 \\ $\sim$500000 \\ 76800 \\ 14400 \\ 68160} &
+  \makecell{16-60 \\ 256 \\ 5,7 \\ 3,12 \\ 4 \\ 4-8} & 
+  \makecell{2 \\ 2 \\ 2 \\ 2 \\ 2 \\ 2} & 
+  \makecell{grid-N4 \\ grid-N4 \\ grid-N4 \\ grid-N4 \\ grid-N4 \\ grid-N4} & 
+  \makecell{TL1,TL2 \\ TL2 \\ explicit \\ potts \\ potts \\ potts} \\
+  \cline{2-8} &  
+  \makecell{color-seg-N8 \\ inpainting-N8 \\ color-seg \\ \ } &
+  \makecell{9 \\ 2 \\ 3 \\ \ } & 
+  \makecell{76800 \\ 14400 \\ 21000 \\ 424720 } & 
+  \makecell{3,12 \\ 4 \\ 3,4 \\ \ } & 
+  \makecell{2 \\ 2 \\ 2 \\ \ } & 
+  \makecell{grid-N8 \\ grid-N8 \\ grid-N8 \\ \ } &
+  \makecell{potts \\ potts \\ potts \\ \ } \\
+  \cline{2-8} & 
+  \makecell{dtf-chinese-char \\ brain} &
+  \makecell{100 \\ 5} & 
+  \makecell{$\sim$8000 \\ 400000-7000000} &
+  \makecell{2 \\ 5} & 
+  \makecell{2 \\ 2} &
+  \makecell{sparse \\ grid-3D-N6} &
+  \makecell{explicit \\ potts} \\ 
+  \hline
+  \hline
+  \multirow{7}{*}{\rotatebox{90}{\bf Superpixel}} &
+  scene-decomp & 715 & $\sim$300 & 8 & 2 & sparse & explicit \\
+  \cline{2-8} &
+  \makecell{geo-surf-seg-3 \\ geo-surf-seg-7} &
+  \makecell{300 \\ 300} &
+  \makecell{$\sim$1000 \\ $\sim$1000} &
+  \makecell{3 \\ 7} &
+  \makecell{3 \\ 3} &
+  \makecell{sparse \\ sparse} &
+  \makecell{explicit \\ explicit} \\ 
+  \cline{2-8} &
+  \makecell{correlation-clustering \\ image-seg \\ 3d-neuron-seg \\ \ } &
+  \makecell{715 \\ 100 \\ 2 \\ \ } &
+  \makecell{$\sim$300 \\ 500-3000 \\ 7958 \\ 101220} &
+  \makecell{$\sim$300 \\ 500-3000 \\ 7958 \\ 101220} &
+  \makecell{$\sim$300 \\ 2 \\ 2 \\ \ } & 
+  \makecell{sparse \\ sparse \\ sparse \\ \ } &
+  \makecell{potts \\ potts \\ potts \\ \ } \\
+  \hline
+  \hline
+  \rotatebox{90}{\bf Other} & 
+  \makecell{matching \\ cell-tracking} & 
+  \makecell{4 \\ 1} &
+  \makecell{$\sim$20 \\ 41134} &
+  \makecell{$\sim$20 \\ 2} &
+  \makecell{2 \\ 9} & 
+  \makecell{full or sparse \\ sparse} &
+  \makecell{explicit \\ explicit} \\
+  \hline
+\end{tabular}
+\end{center}
+\caption{List of datasets used in the benchmark.}
+\label{tab}
+\end{table*}
+
+\section{Models}
+
+They assume that their discrete energy minimization problem is given in the form of a factor graph $G = (V,F,E)$, a bipartite graph, with a set of variable nodes $V$, a set of all factors $F$, and a set $E \subset V \times F$ that defines the ralation between those \cite{Optimizing}. The variable $x_a$ assigned to the variable node $a \in V$ lives in a discrete label-space $X_a$ and each factor $f \in F$ has an associated function: $\varphi_f : X_{ne(f)} \to \mathbb{R}$, where $x_{ne(f)}$ are the variables in the neighborhood $ne(f) := \{v \in V : (v,f)\in E\}$ of the factor $f$, \emph{i.e.} the set of variables in the $scope$ of the factor. Authors define the order of a factor by its degree,\emph{e.g.} pairwise factors have order 2, and the order of a model by the maximal degree among all factors. The energy function of the discrete labeling problem is then given as\\
+\begin{gather}
+J(x) = \sum_{f\in F}\varphi_f(x_{ne(f)}),
+\end{gather}
+where the assignment of the cariable $x$ is also known as the labeling. For many applications the aim is to find a labeling with minimal energy,\emph{i.e.} $\hat{x}\in\mathop{\arg\min}_{x}J(x)$. This labeling is a maximum-a-posteriori (MAP) solution of a Gibbs distribution $p(x) = 1/Z exp\{-J(x)\}$ defined by the energy. Here, $Z$ normalizes the distribution.
+
+It is worth to note that they use factor graph models instead of Markov Random Field models (MRFs), also known as undirected graphical moedls. The reason is that factor graphs represent the structure of the underlying problem in a more precise and explicit way than MRFs can,\emph{c.f.}\cite{Optimizing}.
+\balance
+
+\subsection{Benchmark Models}
+
+Table \ref{tab} gives an overview of the models summarized in this study. Some models have a single instance, while others have a larger set of instances which allows to derive some statistics. Authors now give a brief overview of all models. A detailed description of all models is available online and in the supplementary material.
+
+{\small
+\bibliographystyle{ieee}
+\bibliography{Comparative}
+}
+\end{document}
