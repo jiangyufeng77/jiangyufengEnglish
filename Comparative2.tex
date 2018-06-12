@@ -1,0 +1,98 @@
+\documentclass[10pt,twocolumn,letterpaper]{article}
+
+\usepackage{cvpr}
+\usepackage{times}
+\usepackage{epsfig}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{multirow}
+\usepackage{balance}
+\usepackage{makecell}
+\usepackage[pagebackref=true,breaklinks=true,letterpaper=true,colorlinks,bookmarks=false]{hyperref}
+
+\cvprfinalcopy
+\def\cvprPaperID{****} % *** Enter the CVPR Paper ID here
+\def\httilde{\mbox{\tt\raisebox{-.5ex}{\symbol{126}}}}
+
+% Pages are numbered in submission mode, and unnumbered in camera-ready
+\ifcvprfinal\pagestyle{empty}\fi
+\begin{document}
+\title{A Comparative Study of Modern Inference Techniques for Discrete Energy Minimization Problems}
+\author{Yufeng Jiang}
+\date{\today}
+\maketitle
+\balance
+
+\section{Related Inference Studies}
+
+Since 2006 when the study was published, the field has made rapid progress. Modern vision problems involve more complex models, involve larger datasets and use machine learning techniques to train the model parameters and energies.
+
+Taken together, these changes give rise to hard energy minimization problems that are fundamentally different than the ones considered by Szeliski \emph{et al.} In particular, in \cite{comparative} the models were restricted to 4-connected grid graphs with unary and pairwise factors only.
+
+Apart from the study \cite{comparative}, there are many recent articles in computer vision which compare inference techniques for a small specialized class of models, such as \cite{Dynamic,Beyond,Comparison}. Unfortunately, the models and inference techniques are often not publicly available. Even if they were available, the lack of a flexible software-framework which includes these models and optimization techniques makes a fair comparison difficult. Closely related is the smaller study that uses the first and now deprecated version of OpenGM. It compares several variants of message passing and move making algorithms for higher order models. In contrast to this work, polyhedral inference methods are not included and only a small number of synthetic models are used.
+
+Outside computer vision, the Probabilistic Inference Challenge (PIC) \cite{PIC2011} covers a broad class of models used in machine learning. They include the leading optimization techniques of PIC in their study.
+
+
+
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[width=8cm]{c21.png}
+\end{center}
+\caption{Example for a pixel based model}
+\label{fig1}
+\end{figure}
+
+\section{Second-Order Models}
+
+Table \ref{tab1} summarizes the results for the stereo labeling problems from \cite{comparative}. For instances of this problem, methods like ogm-BUNDLE-A that solve the LP-relaxation perform best. The mrf-TRWS method from \cite{comparative} produces the best solution on average, but does not solve the LP-relaxation optimally, since the average lower bound is not the tightest. Applying Lazy Flipper on top (TRWS-LF2) improves the solution further.
+
+\begin{table*}
+\begin{center}
+\begin{tabular}{p{3.5cm}p{3cm}crcc}
+ \hline
+ algorithm & mean run time & mean value & mean bound & best & ver. opt \\ 
+ \hline
+ FastPD & {\bf 4.47 sec} & 1614255.00 & -$\infty$ & 0.00 & 0.00 \\ 
+ FastPD-LF2 & 296.38 sec & 1611484.33 & -$\infty$ & 0.00 & 0.00 \\
+ mrf-EXPANSION & 13.04 sec & 1614353,00 & -$\infty$ & {\bf 33.33} & 0.00 \\
+ mrf-TRWS & 296.22 sec & 1587928.67 & 1584746.53 & 0.00 & 0.00 \\
+ ogm-BUNDLE-A & 8458.49 sec & 1610985.00 & 1584776.15 & {\bf 33.33} & {\bf 33.33} \\
+ ogm-SUBGRAD-A & 8533.41 sec & 1752958.00 & 1578421.00 & {\bf 33.33} & {\bf 33.33} \\
+ TRWS-LF2 & 668.47 sec & {\bf 1587040.00} & 1584746.53 & {\bf 33.33} & 0.00 \\
+ \hline
+\end{tabular}
+\end{center}
+\caption{mrf-stereo (3 instances)}
+\label{tab1}
+\end{table*}
+\begin{table*}
+\begin{center}
+\begin{tabular}{p{3.5cm}p{3cm}crcc}
+  \hline
+  algorithm & mean run time & mean value & mean bound & best & ver. opt \\ 
+  \hline
+  mrf-EXPANSION & {\bf 8.54 sec} & {\bf 168220.00} & -$\infty$ & {\bf 100.00} & 0.00 \\
+  mrf-SWAP & {\bf 11.35 sec} & {\bf 180345.00} & -$\infty$ & 0.00 & 0.00 \\ 
+  mrf-TRWS & 253.20 sec & 1243144.00 & 166827.07 & 0.00 & 0.00 \\ 
+  ogm-BUNDLE-H & 4771.35 sec & 599206.00 & 111100.35 & 0.00 & 0.00 \\
+  ogm-SUBGRAD-A & 4734.20sec & 3846787.00 & 26005.24 & 0.00 & 0.00 \\
+  TRWS-LF2 & 431.34 sec & 735193.00 & 166827.12 & 0.00 & 0.00 \\ 
+  \hline
+\end{tabular}
+\end{center}
+\caption{mrf-photomontage (2 instances)}
+\label{tab2}
+\end{table*}
+
+{\bf Pixel-Based Models} For many low-level vision problems it is desirable to make each pixel a variable in the model. For 2D iamges, where variables are associated to pixels in a 2D lattice, a simple form of a factor graph model connects each pixel with its four nearest neighbors using a pairwise energy. This simple form is popular and was the sole subject of the study \cite{comparative}. In their study they incorporated the models $mrf-sterro$, $mrf-inpainting$, and $mrf-photomontage$ from \cite{comparative}. Additionally they used three models which have the same 4-connected structure, inpainting $inpainting-N4$, color segmentation $color-seg-N4$\footnote{The $inpainting-N4/8$ and $color-seg-N4/8$-models were originally used in variational approaches together with total variation regularisers. A comparison with variational models is beyond the scope of this study.} and object segmentation $object-seg$. All sets have a small number of labels and use Potts regularizers. In $inpainting-N4$ and $color-seg-N4$ this regularizer is fixed for all factors. In $object-seg$, it depends on the image-gradient. The unary terms measure the similarity to predefined class-specific color models.
+
+They also consider the task of in-painting in binary images of Chinese characters, $dtf-chinesechar$. The factors are learned potentials from a decision tree field. Although each variable has only two labels, their regional sparse neighborhood structure makes the resulting inference problem challenging, \emph{c.f.} Fig.\ref{fig1}.
+
+In contrast to the previous case, primal move-making methods outperform LP-relaxation methods for the $mrf-photomaontage$ model, also from \cite{comparative}. Table \ref{tab2} provides the details. Authors believe this is because some unary terms have infinite values. As observed in \cite{comparative}, mrf-EXPANSION is both the fastest and achieves the best results on average. The same behavior can be seen for the synthetic inpainting instances $inpainting-N4/8$. The instance ``inverse'' is constructed such that the LP-relaxation over the local polytope is not tight. In this case pure primal move-making methods are superior, since they do not face the rounding problem. 
+{\small
+\bibliographystyle{ieee}
+\bibliography{Comparative2}
+
+\end{document}
