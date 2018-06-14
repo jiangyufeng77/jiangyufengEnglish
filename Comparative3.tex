@@ -1,0 +1,110 @@
+\documentclass[10pt,twocolumn,letterpaper]{article}
+\usepackage{cvpr}
+\usepackage{times,epsfig}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{balance}
+\usepackage[pagebackref=true,breaklinks=true,letterpaper=true,colorlinks,bookmarks=false]{hyperref}
+
+\cvprfinalcopy
+\def\cvprPaperID{****}
+\def\httilde{\mbox{\tt\raisebox{-.5ex}{\symbol{126}}}}
+
+% Pages are numbered in submission mode, and unnumbered in camera-ready
+\ifcvprfinal\pagestyle{empty}\fi
+\begin{document}
+\title{A Comparative Study of Modern Inference Techniques for Discrete Energy Minimization Problems}
+\author{Yufeng Jiang}
+\maketitle
+\balance
+
+\section{Key Insights and Suggested Future Research}
+
+It is time to revisit the study of \cite{A}. Authors provide a modernized comparison, updating both the problem instances and the inference techniques.
+
+Their moedls are different in the following four aspects: {\bf (1)} higher order models, \emph{e.g.} factor order up to 300, {\bf (2)} models on ``regular'' graphs with a denser connectivity structure, \emph{e.g.} 27-pixel neighborhood, or models on ``irregular'' graphs with spatially non-uniform connectivity structure, {\bf (3)} models based on superpixels with smaller number of variables, and {\bf (4)} image partitioning models without unary terms, an unknown number of classes.
+
+In comparison with \cite{A}, perhaps the most important new insight is that recent, advanced polyhefral LP and ILP solvers are relevant for a wide range of problems in computer vision. For a considerable number of instances, they are able to achieve global optimality. For some problems they are even competitive in terms of overall runtime. This is true for problems wth a small number of labels, variables and factors of low order that have a simple form. But even for some problems with a large number of variables or complex factor form, specialized ILP and LP solvers can be applied successfully. For problems with many variables for which the LP relaxation is not tight, polyhefral methods are not competitive. In this regime, primal move-making methods typically achieve the best results, which is consistent with the findings of \cite{A}.
+
+{\bf Superpixel-Based Models} In these models, all pixels that lies in the same superpixel are constrained to have the same lable. This reduces the number of variables in the model and makes it attractive to add complex, higher order factors.
+
+In the $scene-decomposition-$dataset \cite{Decomposing} every superpixel has to be assigned to one of 8 classes. Pairwise factors between neighboring superpixels enforces likely label-neighborhoods. The datasets $geo-surf-3$ and $geo-surf-7$\cite{Inference,Recovering} are similar but have additional third-order factors, that enforce consistency of labels for three vertically neighboring superpixels.
+
+{\bf Superpixel-Based Partition Models} Beyond classical superpixel models, this study also considers a recent class of superpixel modles \cite{Higher,Probabilistic,segmentation,Globally} which aim at partitioning an image without any class-specific knowledge, \emph{i.e.} the corresponding energy function is invariant to permutations of the label set. Since the partition into isolated superpixels is a feasible solution, the label space of each variable is equal to the number of variables of the model, and therefore typically very large, \emph{c.f.} Figure \ref{fig1}. State-of-the-art solvers for classical models either are inapplicable or perform poorly on these models. Moreover, commonly used LP-relaxtions surffer from  the interchangeability of the labels in the optimal solution.
+
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[width=9cm]{c31.png}
+\end{center}
+\caption{Example for a superpixel partition model \cite{Probabilistic}: image (left), superpixels (middle) and segmentation (right).}
+\label{fig1}
+\end{figure}
+
+\section{Evaluation}
+
+Due to lack of space, authors only provide a brief summary of the benchmark results here. Detailed results for all instances, including plots of energy values and bounds verssus runtime, are provided in the supplemental material and will be made publicly available on the project webpage\footnote{\url{http://hci.iwr.uni- heidelberg.de/opengm2/}}.
+
+\begin{table*}
+\begin{center}
+\begin{tabular}{p{3.5cm}p{3cm}crcc}
+  \hline
+  algorithm & mean run time & mean value & mean bound & best & ver. opt \\ 
+  \hline
+  FastPD & {\bf 0.35 sec} & 20034.80 & -$\infty$ & 0.00 & 0.00 \\ 
+  FastPD-LF2 & 13.61 sec & 20033.21 & -$\infty$ & 0.00 & 0.00 \\
+  mrf-EXPANSION & {\bf 1.24 sec} & 20031.81 & -$\infty$ & 0.00 & 0.00 \\
+  mrf-SWAP & {\bf 0.86 sec} & 20049.90 & -$\infty$ & 0.00 & 0.00 \\
+  mrf-TRWS & 33.15 sec & {\bf 20012.18} & {\bf 20012.14} & 88.89 & 77.78 \\
+  ogm-BUNDLE-A & 692.39 & 20024.78 & 20012.01 & 77.78 & 77.78 \\
+  ogm-BUNDLE-H & 1212.24 & 20012.44 & {\bf 20012.13} & 77.78 & 22.22 \\
+  ogm-SUBGRAD-A & 1179.62 sec & 20027.98 & 20011.57 & 66.67 & 11.11 \\
+  MCA & 982.36 sec & 20527.37 & 19973.25 & 88.89 & 88.89 \\
+  MCA-6h & 1244.30 sec & {\bf 20012.14} & {\bf 20012.14} & {\bf 100.00} & 
+  {\bf 100.00} \\
+  \hline
+\end{tabular}
+\end{center}
+\caption{color-seg-n4 (9 instances)}
+\label{tab1}
+\end{table*}
+
+\begin{table*}
+\begin{center}
+\begin{tabular}{p{3.5cm}p{3cm}crcc}
+  \hline
+  algorithm & mean run time & mean value & mean bound & best & ver. opt \\
+  \hline
+  BPS & 72.85 sec & -49537.08 & -$\infty$ & 19.00 & 0.00 \\
+  MCBC & 2053.89 sec & -{\bf 49550.10} & -{\bf 49612.38} & {\bf 91.00} & {\bf 56.00} \\
+  ogm-ILP & 3580.93 sec & -49536.59 & -50106.17 & 8.00 & 0.00 \\
+  QPBO & {\bf 0.16 sec} & -49501.95 & -50119.38 & 0.00 & 0.00 \\
+  SA & n/a & -49533.02 & -$\infty$ & 13.00 & 0.00 \\
+  TRWS & 100.13 sec & -49496.84 & -50119.41 & 2.00 & 0.00 \\
+  TRWS-LF2 & 106.94 sec & -49519.44 & -50119.14 & 11.00 & 0.00 \\
+  \hline
+\end{tabular}
+\end{center}
+\caption{dtf-chinesechar (100 instances)}
+\label{tab2}
+\end{table*}
+
+In Table \ref{tab1}, authors analyze the color-seg-4 model that has fewer variables and a simpler Potts regularization. In this case, they are able to calculate the globally optimal solution using MCA. This is also true for other models with similar characteristics, \emph{e.g.} $color-seg$, $object-seg$, $color-seg-n8$, and $brain$. Even the complex $pfau-instance$ could be solved to optimality in 3 hours. In this case, LP-based methods are superior in terms of objective values, but EXPANSION, SWAP and FastPD converged to somewhat worse but resonable solutions very quickly.
+ 
+All models so far consisted of truncated convex pairwise terms. Arbitrary pairwise terms can lead to optimization problems that are significantly harder to solve, as they found in $dtf-chinesechar$ in Table \ref{tab2}. In this case, the pairwise terms are learned and happen to be a mix of attractive and repulsive terms. Although these are medium sized binary problems, the relaxations over the local polyhedral method (MCBC) \cite{Towards} was able to solve some instances to optimality.
+
+The matching problem have very few variables, which is ideal for sophisticated ILP solvers. Indeed, they observe that pure branch-and-bound algorithms like BRAOBB or ogm-ASTAR can achieve global optimality relatively quickly. Again, standard LP-solvers do not perform well, since the relaxation is not very tight. Lazy flipping, as a post-processing step, can help significantly in these situations, \emph{c.f.} Figure \ref{fig2}. Fusion moves with $\alpha$-proposals does not work well for matching instances. Generating problem-specific proposals might overcome this problem.
+
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[width=8cm]{c32.png}
+\end{center}
+\caption{Example output for a matching model \cite{Beyond}: Green dots represent the variables of a fully connected graph. The discrete label assigns a green dot to a red dot (shown with a line).}
+\label{fig2}
+\end{figure}
+
+{\small
+\bibliographystyle{ieee}
+\bibliography{compatative3}
+}
+\end{document}
