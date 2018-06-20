@@ -1,0 +1,120 @@
+\documentclass[10pt,twocolumn,letterpaper]{article}
+
+\usepackage{cvpr}
+\usepackage{times}
+\usepackage{epsfig}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{balance}
+\usepackage[pagebackref=true,breaklinks=true, letterpaper=true, colorlinks,bookmarks=false]{hyperref}
+
+\cvprfinalcopy
+\def\cvprPaperID{****}
+\def\httilde{\mbox{\tt\raisebox{-.5ex}{\symbol{126}}}}
+
+% Pages are numbered in submission mode, and unnumbered in camera-ready
+\ifcvprfinal\pagestyle{empty}\fi
+
+\begin{document}
+\title{Alternating Decision Forests}
+\author{Yufeng Jiang}
+\maketitle
+\balance
+
+\section{Training Alternating Decision Forests}
+
+In order to incorporate any diffenentiable, global loss function into Random Forests, authors adopt the idea of the above reviewed Gradient Boosting method, \emph{i.e.} they perfoem Gradient Descent in function space. While they could easily train Boosted Trees that respect a global loss function, \emph{i.e.} Gradent Boosting having decision trees as weak learners, the goal of Althernating Decision Forests is to explicitly integrate the global loss into the tree growing scheme, thus preserving the parallel training of standard RFs. For that purpose, they need (i) a stage-wise tree growing scheme during which they update the weight distribution and (ii) spliting functions taking these weights into account.
+
+To get a $stage-wise~classifier$, they let their trees grow in an iterative, breadth-first manner, contrary to a typical depthfirst scheme in standard RFs. Each stage in ADFs corresponds to a single depth of the forest, \emph{i.e.} the iterations are now indexed with $d = 1, \dots, D_{max}$, where $D_{max}$ is the maximum tree depth of the forest. After training each single iteration $d$, they have a classification model $\mathcal{T}^d(\mathbf{x}_i) = \frac{1}{T}\sum_{t=1}^Tp_t^d(y_i|\mathbf{x}_i)$, where $p_t^d(y_i|\mathbf{x}_i)$ is the class probability estimate of sample $\mathbf{x}_i$ returned by tree $\mathcal{T}_t^d$, which denotes tree $\mathcal{T}_t$ grown up to depth $d$. They can now use this strong clasifier and a given loss $l(\cdot)$ to update the weights $w_i^{d+1}$ of all training samples for the next iteration as illustrated in Eq.\ref{eq1}. In the first iteration, all weights are set uniformly. After the weight updates, they train the next stage of the forest in parallel. This is done by convering all leaf nodes in the current iteration to split nodes.
+
+To let the $splitting~functions~consider~the~sample$ $weights$, they change the standard entropy claculation to become a weighted entropy by changing the estimation of the class distributions $p(k|S)$ for the set $S$:\\
+\begin{gather*}
+p(k|S) = \frac{\sum_{i=1}^{|S|}[y_i = k]\cdot w_i^d}{\sum_{i=1}^{|S|}w_i^d}.
+\tag{1}
+\label{eq1}
+\end{gather*}
+Here, $[y_i = k]$ is the indicator function returning 1 if the label $y_i$ of the sample $\mathbf{x}_i \in S$ is equal to $k$, and 0 otherwise. 
+
+\section{Comparison of ADFs with Other Classifiers}
+
+First, authors directly compare all methods against each other on all 5 data sets. As the common parameters of ADFs, RFs and BTs are set equally, as mentioned before, they directly compare the way the tree structure is built. For ADFs and BTs they also evaluate 5 different loss functiions that can be integrated in the gradient Boosting formulation: Logit,  Hinge, Exponential, Savage \cite{Fast} and Tangent \cite{On}.
+
+\begin{table*}
+\begin{center}
+\begin{tabular}{p{2.5cm}p{2cm}p{2cm}p{2cm}p{2cm}p{2cm}p{2cm}}
+  \hline
+  Method & Loss & G50c & Letter & USPS & MINIST & Char74k \\
+  \hline
+  {\bf Alternating} & Logit & 19.83$\pm$1.34 & 6.81$\pm$0.34 & 6.31$\pm$0.23 &
+  3.82$\pm$0.08 & 17.38$\pm$0.16 \\
+  {\bf Decision} & Hinge & 19.47$\pm$1.26 & 4.89$\pm$0.16 & 5.87$\pm$0.19 &
+  3.20$\pm$0.06 & 17.00$\pm$0.10 \\
+  {\bf Forests} & Exp & 19.09$\pm$1.17 & 4.27$\pm$0.13 & 6.03$\pm$0.29 &
+  2.96$\pm$0.05 & 16.82$\pm$0.15 \\
+  ~ & Savage \cite{Fast} & 19.00$\pm$1.32 & 3.94$\pm$0.14 & 5.76$\pm$0.16 & 
+  2.78$\pm$0.09 & 16.92$\pm$0.15 \\
+  ~ & Tangent \cite{On} & {\bf 18.71$\pm$1.27} & {\bf 3.52$\pm$0.12} & 
+  {\bf 5.59$\pm$0.16} & {\bf 2.71$\pm$0.10} & {\bf 16.67$\pm$0.21} \\
+  \cline{1-2}
+  Boosted Trees \cite{The} & Logit & 18.99$\pm$1.51 & 4.98$\pm$0.09 & 
+  5.99$\pm$0.21 & 3.18$\pm$0.08 & 17.98$\pm$0.19 \\
+  ~ & Hinge & 18.97$\pm$1.33 & 4.87$\pm$0.15 & 5.90$\pm$0.15 & 
+  3.23$\pm$0.05 & 17.65$\pm$0.19 \\
+  ~ & Exp & 18.91$\pm$1.30 & 4.78$\pm$0.12 & 5.83$\pm$0.19 & 
+  3.17$\pm$0.07 & 17.57$\pm$0.10 \\
+  ~ & Savage \cite{Fast} & 18.87$\pm$1.31 & 4.65$\pm$0.12 & 
+  5.92$\pm$0.19 & 3.19$\pm$0.07 & 17.62$\pm$0.25 \\
+  ~ & Tangent \cite{On} & 18.90$\pm$1.31 & 4.70$\pm$0.18 & 
+  5.93$\pm$0.27 & 3.15$\pm$0.05 & 17.59$\pm$0.29 \\
+  \cline{1-2}
+  Random Forests & - & 18.91$\pm$1.33 & 4.75$\pm$0.10 & 
+  5.96$\pm$0.21 & 3.21$\pm$0.07 & 17.76$\pm$0.13 \\
+  \hline
+\end{tabular}
+\end{center}
+\caption{Alternating Decision Forests compared with the two main competitors, Random Forests and Boosted Trees, on 5 data sets. Best performing methods are highlighted and marked {\bf bold-face}, second best methods are highlighted only.}
+\label{tab1}
+\end{table*}
+
+\begin{table}
+\begin{center}
+\begin{tabular}{p{1cm}p{0.5cm}p{0.5cm}p{0.7cm}p{1cm}p{1cm}}
+  \hline
+  Method & G50c & Letter & USPS & MINIST & Char74k \\
+  \hline
+  ADF & 1.0 & 1.0 & 1.0 & 1.0 & 1.0 \\
+  BT & 3.99 & 6.55 & 7.32 & 7.05 & 7.09 \\
+  RF & 1.55 & 0.45 & 0.70 & 0.79 & 1.52 \\
+  \hline
+\end{tabular}
+\end{center}
+\caption{Training time comparison between the three main competitors on all 5 data sets, relative to ADFs.}
+\label{tab2}
+\end{table}
+
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[width=8cm]{a31.png}
+\end{center}
+\caption{Influence of (a) the number of trees $T$ and (b) the maximum tree depth $D_{max}$ on the three classifiers ADFs, RFs, and BTs on the $Char74k$ data set.}
+\label{fig}
+\end{figure}
+
+Tab. \ref{tab1} depicts their results. As can be seen, the combination of ADFs and the Tangent loss function yields the best results on all 5 data sets. ADFs with Savage loss and Exponential loss are the second best choices on 3, respectively 1 data sets. Only for $G50c$, BTs with Savage loss gives the second best results. Most interesting, however, is the fact that ADFs (Tangent loss) constantly outperform both RFs and BTs, \emph{i.e.} the main competitors.
+
+They furhter evaluate the computational costs of training ADFs and give a relative comparison to RFs and BTs in Tab. \ref{tab2}. As expected, BTs are much slower (around 7 times slower), while ADFs and RFs show similar training time.
+
+\section{Comparison of Common Parameters}
+
+Next, they evaluate the influene of two important parameters of all evaluated classifiers on the $Char74k$ data set. They investigate the number of trees $T$ and the maximum tree depth $D_{max}$, which they vary in the ranges [1,100] and [10,25], respevtively. As mentioned before, they choose the Tangent loss for both ADFs and BTs due to the good overall performance in the last experiment.
+
+It is interesting that ADFs improve over RFs and BTs only for larger number of trees, just as shown at Fig. \ref{fig}. For a small number of trees, the performance is more or less the same. This could be explained by the weight update in ADF, which follow the predictions of the current state of the classifier. However, due to the small number of trees and the fact that the trees are not fully grown yet, these predictions are unreliable. This might decrease the performance as the weights take unreasonable values. However, as soon as the number of trees increases, also the performance of ADFs increases and outperforms both RFs and BTs.
+
+{\small
+\bibliographystyle{ieee}
+\bibliography{alternating3}
+}
+
+
+\end{document}
