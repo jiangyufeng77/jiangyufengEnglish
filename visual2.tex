@@ -1,0 +1,89 @@
+\documentclass[10pt,twocolumn,letterpaper]{article}
+
+\usepackage{cvpr}
+\usepackage{times}
+\usepackage{epsfig}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{balance}
+\usepackage[pagebackref=true,breaklinks=true, letterpaper=true, colorlinks,bookmarks=false]{hyperref}
+
+\cvprfinalcopy
+\def\cvprPaperID{****}
+\def\httilde{\mbox{\tt\raisebox{-.5ex}{\symbol{126}}}}
+
+% Pages are numbered in submission mode, and unnumbered in camera-ready
+\ifcvprfinal\pagestyle{empty}\fi
+
+\begin{document}
+\title{Visual Tracking via Locality Sensitive Histograms}
+\author{Yufeng Jiang}
+\maketitle
+
+\section{Illumination Invariant Features}
+
+In practice, most of the applications use normalized histograms. A normalization step, including a summation operation over all bins, for obtaining the normalization factor is required at each pixel location. A brute-force implementation of this summation operation is obviously $O(B)$ per pixel. Nevertheless, let $n_p$ denote the normalization factor at pixel $p$ shown at~\cite{via}:\\
+\begin{align*}
+n_p &= \sum_{b=1}^B\mathbf{H}_p^E(b) = \sum_{q=1}^W\alpha^{|p-q|} \cdot (\sum_{b=1}^BQ(\mathbf{I}_q,b)) \\
+&= \sum_{q=1}^W\alpha^{|p-q|}
+\tag{1}
+\label{eq1}
+\end{align*}
+Hence, the computation of the normalization factor $n_p$ is independent of the number of bins $B$. In addition, $n_p$ can also be computed in the same way:\\
+\begin{gather*}
+n_p = n_p^{left} + n_p^{right} - 1,
+\tag{2}
+\label{eq2}
+\end{gather*}
+\begin{gather*}
+n_p^{left} = 1 + \alpha \cdot n_{p-1}^{left},
+\tag{3}
+\label{eq3}
+\end{gather*}
+\begin{gather*}
+n_p^{right} = 1 + \alpha \cdot n_{p+1}^{right}.
+\tag{4}
+\label{eq4}
+\end{gather*}
+In this case, the normalization factors can be computed in $O(1)$ per pixel. Furthermore, the normalization factors are indenpendent of the image content and thus can be precomputed to further reduce the computational complexity.
+
+The algorithm presented in Eqs.~\ref{eq2}-\ref{eq4} used at~\cite{via} is developed for 1D images. However, its extension to multidimensional images is straightforward. Authors simply perform the proposed 1D algorithm separately and sequentially in each dimension. Fig.~\ref{fig} cited from~\cite{via} shows the speed of the proposed algorithm for computing the locality sensitive histogram for a 1 MB 2D image with respect to the logarithm of the number of bins $B$. Note that it is as efficient as the integral histogram. 
+
+\begin{figure}[t]
+\begin{center}
+\includegraphics[width=8cm]{v21.png}
+\end{center}
+\caption{Speed comparison. The red dash curve shows the runtime of computing the local histograms from the integral histogram for a 1 MB image w.r.t. the logarithm of the number of bins $B$. The blue solid curve shows the runtime of computing the proposed locality sensitive histograms. Note that the speed of the two algorithms are very close and can be computed in real time when the number of bins is relatively low. For instance, when $B = 16$, the locality sensitive histograms can be computed at 30 FPS.}
+\label{fig}
+\end{figure}
+
+Images taken under different illumination conditions have drastic effects on object appearance. Under the assumption of affine illumination changes, they can synthesize images of the scene presented in Fig.~\ref{fig2} shown at~\cite{via}. As the corresponding pixels have different brightness values, the intensity of the image cannot be considered as invariants for matching.
+
+\begin{figure}[t]
+\begin{center}
+\includegraphics[width=8cm]{v22.png}
+\end{center}
+\caption{Illumination invariant features. (a)-(c) are input images with different illuminations. (d)-(f) are the corre- sponding outputs.}
+\label{fig2}
+\end{figure}
+
+\balance
+\section{Tracking via Locality Sensitive Histograms}
+
+Based on the location of the target object center in the previous frame, authors aim to locate the new center location within the search region. Exhaustive search within the search region is performed in this work, where every pixel is considered as a candidate target center. Each region at the candidate location is matched correspondingly against the template to produce a score, based on the Earth Mover's Distance (EMD)~\cite{The}.
+
+Although the conventional EMD is computational expensive, the EMD between two normalized 1D histograms can be computed in time linear in the number of bins~\cite{Approximate}. It is equal to the $i_1$-distance between their cumulative histograms~\cite{A}. The proposed locality sensitive histogram is normalized. The distance between histograms can be computed as Eq.~\ref{eq5} used in~\cite{via}.\\
+\begin{gather*}
+d(S_1,S_2) = \sum_{b=1}^B|C_1(b) - C_2(b)|,
+\tag{5}
+\label{eq5}
+\end{gather*}
+Where $S_1$ and $S_2$ are the corresponding regions of the template (centered at $p$1) and the candidate (centered at $p$2) in the current frame. $C_1$ and $C_2$ are the cumulative histograms of $\mathbf{H}_{p1}^E$ and $\mathbf{H}_{p2}^E$. They are defined as: $C(b) = \sum_1^b\mathbf{H}_p^E(b)$.
+
+{\small
+\bibliographystyle{ieee}
+\bibliography{visual2}
+}
+
+\end{document}
