@@ -1,0 +1,107 @@
+\documentclass[10pt,twocolumn,letterpaper]{article}
+
+\usepackage{cvpr}
+\usepackage{times}
+\usepackage{epsfig}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{balance}
+\usepackage[pagebackref=true,breaklinks=true, letterpaper=true, colorlinks,bookmarks=false]{hyperref}
+
+\cvprfinalcopy
+\def\cvprPaperID{****}
+\def\httilde{\mbox{\tt\raisebox{-.5ex}{\symbol{126}}}}
+
+% Pages are numbered in submission mode, and unnumbered in camera-ready
+\ifcvprfinal\pagestyle{empty}\fi
+
+\begin{document}
+\title{Visual Tracking via Locality Sensitive Histograms}
+\author{Yufeng Jiang}
+\maketitle
+
+\section{Multi-Region Tracking}
+
+The purpose of multi-region tracking algorithms is to capture the spatial information of a target object to account for appearance change. The target object is missing in single region tracking. Though using multiple regions to represent a target object is important, it is not useful to use a large number of them because the cost of local analysis and region-by-region matching is extremely high. Authors exploit the proposed locality sensitive histograms for multi-region tracking based on the efficientive illumination invariant features and region matching scores. One application of their method is to adapt the fragement-based method~\cite{Robust} to demonstrate the effect of using a large number of regions for robust object tracking.
+
+\subsection{Online Template Update}
+
+Visual tracking with a fixed template is not effective iver a long period of time as the appearance have changed sigificantly. To solve this problems, authors update the region histograms of the template. The most biggest advantage of using multiple regions is that allowing the template to adapt to the appearance change and alleviating the tracking drift problem during updating a fraction in each frame. Once the new target location is determined in~\cite{via}, the local historgrams are updated as follows:\\
+\begin{gather}
+H_{p1}^E(\cdot) = H_{p2}^E(\cdot)~~~\text{if}~F_1~\cdot~M~<~d(S_1~\cdot~S_2)~<~F_2~\cdot~M,
+\label{eq1}
+\end{gather}
+where $M$ is the medium distance of all the region at the new position. $F_1$ and $F_2$ are the forgetting factors, which define the appearance model update rate. In general, the regions with high dissimilarity represent occlusion, and the region with low dissimilarity are perfectly matched. Thus, authors draw a conclusion that it is better to update only the regions with medium dissimilarity. 
+
+\section{Experiments}
+
+In this part, auhtors evaluate the effectiveness and efficiency of the proposed tracking method. The working environment of this experiments which authors used in C with single core is a PC with an Intel i5 3.3GHz CPU and 8GB RAM. They have evaluated it using 20 video sequences which contain challlenging factors, including deastic illumination changes, pose and scale variation, heavy occlusion, background clutter and fast motion. 
+
+\begin{figure}
+\begin{center}
+\includegraphics[width=8cm]{v31.png}
+\end{center}
+\caption{Success rate (\%) of the proposed tracker with respect to different numbers of regions.}
+\label{fig}
+\end{figure}
+\subsection{Quantitative Evaluation}
+
+There are two evaluation criteria used in their experiments: center location error and tracking success rate. Both of them are computed against manually labeled ground truth. Let $\frac{area(B_T\cap B_G)}{area(B_T\cup B_G)}$ denote the overlap ratio, where $B_T$ and $B_G$ are the bounding boxes of the tracker and the ground-truth. When the overlap ratio is larger than 0.5, the tracking result of the current frame is considered as a success.
+
+Fig.~\ref{fig} which firstly used in~\cite{via} shows the tracking performance of their method with different numbers of regions. The curves shows the average success rates of 20 video sequences. Tab.~\ref{tab} researched from~\cite{via} shows the tracking performance and the speed of their method with the 12 other methods. After ananlysising the date, they note that the {\bf TLD} tracker does not report tracking result when the drift problem occurs. So, they only report the center location errors for sequences that {\bf TLD} does not lose the track of target objects. Fig.~\ref{fig2} cited from~\cite{via} shows some tracking results of different trackers. Authors only show the results by trackers with the top average success rate, \emph{i.e.} {\bf CT}~\cite{Real}, {\bf MIL}~\cite{object}, {\bf TLD}~\cite{Tracking}, {\bf Struck}~\cite{Struck}, {\bf DFT}~\cite{Distribution} and {\bf MTT}~\cite{visual} to clear the presentation. 
+
+\begin{table*}
+\begin{center}
+\begin{tabular}{|c||c|c|c|c|c|c|c|c|c|c|c|c|c|}
+  \hline
+  {\bf Sequence} & {\bf Ours} & {\bf LIT} & {\bf SPT} & {\bf CT} & {\bf Frag} & {\bf MIL} & {\bf Struck} & {\bf VTD} & {\bf TLD} & {\bf BHT} & {\bf LGT} & {\bf DFT} & {\bf MTT} \\
+  \hline \hline
+  Basketball & \textcolor{blue}{\bf 87} & 75 & 84 & 32 & 78 & 27 & 2 & \textcolor{red}{\bf 96} & 1 & 20 & 44 & 3 & 3 \\
+  Biker & \textcolor{red}{\bf 69} & 23 & 44 & 34 & 14 & 40 & \textcolor{blue}{\bf 49} & 45 & 38 & 46 & 7 & 46 & 44 \\
+  Bird & \textcolor{red}{\bf 98} & 44 & 74 & 53 & 48 & 58 & 48 & 13 & 12 & 71 & 5 & \textcolor{blue}{\bf 91} & 13 \\ 
+  Board & \textcolor{red}{\bf 93} & 3 & 47 & 73 & \textcolor{blue}{\bf 82} & 76 & 71 & 81 & 16 & 38 & 5 & 23 & 63 \\
+  Bolt & \textcolor{red}{\bf 81} & 18 & 8 & 66 & 15 & 73 & \textcolor{blue}{\bf 76} & 26 & 3 & 6 & 2 & 8 & 68 \\
+  Box & \textcolor{blue}{84} & 4 & 8 & 33 & 42 & 18 & \textcolor{red}{\bf 90} & 34 & 60 & 8 & 9 & 37 & 25 \\
+  Car & \textcolor{red}{\bf 92} & 43 & \textcolor{blue}{\bf 73} & 43 & 40 & 38 & 59 & 44 & 58 & 10 & 11 & 43 & 49 \\
+  Coupon & \textcolor{red}{\bf 100} & 24 & 98 & 58 & 67 & 77 & \textcolor{red}{\bf 100} & 38 & 98 & 58 & 12 & \textcolor{red}{\bf 100} & \textcolor{red}{\bf 100} \\
+  Crowds & 76 & 59 & 7 & 9 & 2 & 4 & \textcolor{blue}{\bf 82} & 8 & 16 & 4 & 3 & \textcolor{red}{\bf 85} & 9 \\
+  David indoor & \textcolor{red}{\bf 93} & 41 & 64 & 46 & 35 & 24 & 67 & 32 & 90 & 7 & 24 & 45 & \textcolor{blue}{\bf 92} \\
+  Dragon baby & \textcolor{red}{\bf 67} & 16 & 28 & 30 & 35 & 38 & \textcolor{blue}{\bf 43} & 33 & 15 & 28 & 4 & 23 & 24 \\
+  Man & \textcolor{red}{\bf 100} & 98 & 41 & 60 & 21 & 21 & \textcolor{red}{\bf 100} & 31 & 98 & 18 & 8 & 21 & \textcolor{red}{\bf 100} \\
+  Motor rolling & \textcolor{red}{\bf 83} & 5 & 28 & 11 & 24 & 9 & 11 & 6 & 14 & \textcolor{blue}{\bf 30} & 1 & 10 & 5 \\
+  Occluded face 2 & \textcolor{red}{\bf 100} & 60 & 22 & \textcolor{red}{\bf 100} & 80 & 94 & 79 & 77 & 76 & 42 & 8 & 49 & 82 \\
+  Shaking & 73 & 12 & 3 & \textcolor{blue}{\bf 81} & 8 & 45 & 9 & 77 & 1 & 2 & 23 & \textcolor{red}{\bf 95} & 2 \\
+  Surfer & \textcolor{blue}{\bf 75} & 1 & 3 & 3 & 2 & 2 & 67 & 2 & \textcolor{red}{\bf 86} & 2 & 1 & 3 & 3 \\
+  Sylvester & \textcolor{blue}{\bf 89} & 48 & 34 & 74 & 66 & 70 & 87 & 72 & 76 & 78 & 8 & 54 & \textcolor{red}{\bf 96} \\
+  Tiger2 & \textcolor{blue}{\bf 66} & 10 & 3 & 65 & 5 & \textcolor{red}{\bf 77} & 65 & 17 & 26 & 5 & 2 & 21 & 27 \\
+  Trellis & \textcolor{red}{\bf 91} & 67 & \textcolor{blue}{\bf 72} & 35 & 18 & 34 & 70 & 54 & 31 & 18 & 2 & 45 & 34 \\
+  Woman & \textcolor{blue}{\bf 83} & 8 & 80 & 6 & 71 & 6 & \textcolor{red}{\bf 87} & 5 & 30 & 34 & 4 & 80 & 8 \\
+  \hline
+  {\bf Average} & \textcolor{red}{\bf 85.0} & 33.0 & 41.1 & 45.6 & 37.7 & 41.6 & \textcolor{blue}{\bf 63.1} & 39.6 & 42.3 & 26.3 & 9.2 & 44.2 & 42.4 \\
+  \hline \hline
+  {\bf Average FPS} & \textcolor{blue}{\bf 25.6} & 10.2 & 0.2 & \textcolor{red}{\bf 34.8} & 3.5 & 11.3 & 13.5 & 0.5 & 9.5 & 3.3 & 2.8 & 5.8 & 1.0 \\
+  \hline
+\end{tabular} 
+\end{center}
+\caption{The success rates (\%) and the average frames per second (FPS) of the 20 sequences. The best and the second best performing methods are shown in red color and blue color, respectively. The total number of frames is 10,918.}
+\label{tab}
+\end{table*}
+\begin{figure*}
+\begin{center}
+\includegraphics[width=17cm]{v32.png}
+\end{center}
+\caption{Screenshots of the visual tracking results. The figures are placed in the same order as Tab.~\ref{tab}. Red, green, yellow, azure, purple, olive and blue rectangles correspond to results from {\bf DFT}, {\bf CT}, {\bf MTT}, {\bf MIL}, {\bf Struck}, {\bf TLD} and {\bf ours}.}
+\label{fig2}
+\end{figure*}
+\balance
+In this paper, authors propose a novel locality sensitive histogram method and a simple but effective tracking framework. They can conclude from experimental results that the proposed multi-region tracking algorithm has a favorable performance compared to numerous state-of-the-art algorithms. 
+
+{\small
+\bibliographystyle{ieee}
+\bibliography{visual3}
+}
+
+
+
+\end{document}
