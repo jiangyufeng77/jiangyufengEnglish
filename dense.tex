@@ -1,0 +1,113 @@
+\documentclass[10pt,twocolumn,letterpaper]{article}
+
+\usepackage{cvpr}
+\usepackage{times}
+\usepackage{epsfig}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{balance}
+\usepackage[pagebackref=true,breaklinks=true, letterpaper=true, colorlinks,bookmarks=false]{hyperref}
+
+\cvprfinalcopy
+\def\cvprPaperID{****}
+\def\httilde{\mbox{\tt\raisebox{-.5ex}{\symbol{126}}}}
+
+% Pages are numbered in submission mode, and unnumbered in camera-ready
+\ifcvprfinal\pagestyle{empty}\fi
+
+\begin{document}
+\title{Dense Variational Reconstruction of Non-Rigid Surfaces from Monocular Video}
+\author{Yufeng Jiang}
+\maketitle
+
+\begin{abstract}
+
+This paper offers the first variational approach to the problem of dense 3D reconstruction of non-rigid surfaces from a nomocular video sequence. To estimate dense low-rank smooth 3D shapes for every frame with the camera motion matrices compared to the dense 2D, authors formulate non-rigid structure from motion (NRS$f$M) as a global variational energy minimization problem. 
+
+NRS$f$M model the low-rank non-rigid shape using a fixed number of basic shapes and corresponding coefficients. This approach is different from the tradiitonal factorization. By using the new approach, authors can minimize the rank of the matrix of time-varying shapes directly via trace norm minimization. And they can use an edge preserving total-variation regularization term to obtain spatially smooth shapes for every frame by the constraint of the low-rank. 
+
+\end{abstract}
+
+\section{Introduction}
+
+The key problem in computer vision is recovering completely dense 3D models of a scene observed by a moving camera. In this image, they can estimate the 3D location obtained for every pixel. With dense approaches to $multi-view~stereo$ (MVS)~\cite{Accurate,comparison} can acquire highly accurate models from a collation of fully calibrated images, rigid structure from motion (s$f$M) algorithms have made siginificant progress towards this goal. 
+
+The most S$f$M approaches produre impressive and detailed models of 3D objects from video sequences. However, they have a common drawback that they can only handle scenes with rigid objects. Considering from this aspect, the non-rigid structure from motion (NRS$f$M) focuses on the reconstruction of deformable objects from video. Recently, the ability of reconstructing strong realistic non-rigid motions~\cite{Locally,Energy,Non} has advanced siginificantly. The feature of NRS$f$M methods is typically sparse, \emph{i.e.} they can only reconstruct a small set of salient points. This results in very low resolution 3D models that cannot capture fine detail.
+
+\begin{figure}
+\begin{center}
+\includegraphics[width=8cm]{d11.png}
+\end{center}
+\caption{Our proposed pipeline for dense NRSfM. The first row shows the input image stream. Dense long-term 2D trajectories are first computed for every pixel in the reference frame using~\cite{A} and used as input to our dense NRSfM algorithm.}
+\label{fig}
+\end{figure}
+
+In their seminal work, Bergler \emph{et al.}~\cite{Recovering} first proposed the solution to non-rigid sturcture from motion (NRS$f$M). Their though was incorporate a statistical shape before evolving non-rigid shape into the factorization formulation. Previous attempts to dense NRS$f$M have come from: piecewise approaches that reconstruct local patches using simple local models, and template based approaches that require a 3D template. And they also require a post-processing step to stitch all the local reconstructions into a single smooth surface.\\
+{\bf Their system} Firstly, they acquire a video sequence with a single camera as input. And then, their approach can provide a complete pipeline for dense NRS$f$M integrating 2D image matching and 3D reconstruction in two steps which can be shown at Fig.~\ref{fig} cited from~\cite{dense}.
+
+\balance
+
+\section{Problem formulation}
+
+Consider an image sequence $I_1,\dots,I_F$ of $F$ frames with $N$ pixels each where $I_{ref}$ is chosen to be the reference frame. This pixel is the first frame at the most time. The input of their algorithm is a set of $dense$ 2D tracks that have been estimated in a pre-processing step. For every pixel in the reference image $I_{ref}$, each track encodes its image location in the subsequent $F$ frames. Let $p = 1,\dots,N$ be an index for the pixels and $(x_{fp},y_{yp})$ the location of the $p$-th point in the $f$-th frame, $f = 1,\dots,F$. In the reference frame, this location coincides with the location of the $p$-th pixel on the image grid.
+
+They adopt an orthographic camera model, where the $2\times3$ camera matrix $\mathbf{R}_f$ projects 3D points $(X_{fp},Y_{yp},Z_{fp})$ onto image frame $f$ following the projection equation used in~\cite{dense}:\\
+\[
+  \underbrace{
+  \begin{bmatrix}
+  x_{f1} & \ldots & x_{fN} \\
+  y_{f1} & \ldots & y_{fN} \\
+  \end{bmatrix}
+  }_{W_f} = 
+  \mathbf{R}_f
+  \underbrace{
+  \begin{bmatrix}
+  X_{f1} & \ldots & X_{fN} \\
+  Y_{f1} & \ldots & Y_{fN} \\
+  Z_{f1} & \ldots & Z_{fN} \\
+  \end{bmatrix}
+  }_{S_f}
+  \label{eq1}
+  \tag{1}
+\]
+where $\mathbf{W}_f$ stores the 2D locaions of all $N$ points in frame $f$ and the $3\times N$ matrix $\mathbf{S}_f$ represents the 3D shape observed in the frame $f$. Since the objects they are observing are non-rigid, the shape matrix $\mathbf{S}_f$ will be different for each frame. They hace eliminated the translation component from Eq.~\ref{eq1} by registering the image coordinates to the centroid in each frame $f$. They can formulate the projection used in~\cite{dense}of the time varying shapes in all the frames as:\\
+\begin{gather*}
+\mathbf{W} = \mathbf{RS}
+\tag{2}
+\end{gather*}
+where $\mathbf{W}$ is the input measurement matrix that contains the full 2D tracks, $\mathbf{S}$ is the non-rigid shape matrix and $\mathbf{R}$ is the motion matrix. These three matrix can be explained in~\cite{dense}\\
+\[
+  \underbrace{\mathbf{W}}_{2F\times N} = 
+  \begin{bmatrix}
+  \mathbf{W}_1 \\
+  \vdots \\
+  \mathbf{W}_F \\
+  \end{bmatrix},
+  \underbrace{\mathbf{R}}_{2F\times3F} = 
+  \begin{bmatrix}
+  \mathbf{R}_1 & & \bigcirc \\
+   & \ddots & \\
+  \bigcirc & & \mathbf{R}_F \\
+  \end{bmatrix},
+\]
+\[
+  \underbrace{\mathbf{S}}_{3F\times N} = 
+  \begin{bmatrix}
+  \mathbf{S}_1 \\
+  \vdots \\
+  \mathbf{S}_F \\
+  \end{bmatrix}.
+  \tag{3}
+\]
+
+{\small
+\bibliographystyle{ieee}
+\bibliography{dense}
+}
+
+
+
+
+
+\end{document}
