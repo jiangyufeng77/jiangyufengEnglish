@@ -1,0 +1,80 @@
+\documentclass[10pt,twocolumn,letterpaper]{article}
+
+\usepackage{cvpr}
+\usepackage{times}
+\usepackage{epsfig}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{balance}
+\usepackage[pagebackref=true,breaklinks=true, letterpaper=true, colorlinks,bookmarks=false]{hyperref}
+
+\cvprfinalcopy
+\def\cvprPaperID{****}
+\def\httilde{\mbox{\tt\raisebox{-.5ex}{\symbol{126}}}}
+
+% Pages are numbered in submission mode, and unnumbered in camera-ready
+\ifcvprfinal\pagestyle{empty}\fi
+
+\begin{document}
+\title{Dense Variational Reconstruction of Non-Rigid Surfaces from Monocular Video}
+\author{Yufeng Jiang}
+\maketitle
+\balance
+
+\section{Related work}
+
+Most methods are required to add the extra pariors on shape or camera matrices to solve some problems, like temporal smoothness~\cite{Non}, near rigidity~\cite{Non}, smooth time trajectory basis~\cite{Trajectory}, basis priors~\cite{first}. However, recently it has proved that the orthonormality constraints on the camera matrix were sufficient except the low-rank shape prior~\cite{In}. And there have been some practice methods~\cite{A,Optimal}.
+
+Most NRS$f$M methods add low-rank constraint by parameterizing the non-rigid shapes that using a pre-defined number basis shape and a time-varying coefficients. But, recently, Dai \emph{et al.}~\cite{A} research that the non-rigid shape leads to the extra basis ambiguities on basis and coefficients. Instead, they put the low-rank shape constraints to the time-varying shape matrix directly by tracing norm minimization to be a tightest possible relaxation of rank minimization. \\ \\
+{\bf Dense 2D correspondences:} The Dense 2D correspondences need to be established in the image sequence. In this paper, authors use the recent research of robust and dense variational multi-frame motion estimation. Although most 2D motions motion about the image sequence research the estimation of frame-to-frame optical flow fields. But there is a new method usiing Lagrangian recently. This method can handle the estimation of long-term trajectories that associate each world point with its entire 2D image trajectory over an image sequence. \\
+{\bf Dense 3D reconstruction:} Authors propose a new variational energy optimazation method to solve the alternation between the camera matrices and the non-rigid shape for every frame in the sequence at the basic of giving dense correspondences as input. Their energy combines: ($i$) a geometric data term that minimizes image reprojection error, ($ii$) a trace norm term that minimizes the rank of the time-evolving shape matrix and ($iii$) an edge-preseving spatial regularization term that provides smooth 3D shapes.
+
+\begin{figure*}
+\begin{center}
+\includegraphics[width=17cm]{d21.png}
+\end{center}
+\caption{Results on synthetic sequences.}
+\label{fig}
+\end{figure*}
+
+\section{Dense reconstruction with trace norm and spatial smoothness prior}
+
+To solve the dense NRS$f$M problem as defined in the previous section, authors propose to minimize an energy of the following form, jointly with respect to the motion matrix $\mathbf{R}$ and the shape matrix $\mathbf{S}$, they are used in~\cite{dense}:\\
+\begin{gather}
+E(\mathbf{R},\mathbf{S}) = \lambda E_{data}(\mathbf{R},\mathbf{S}) + E_{reg}(\mathbf{S}) + \tau E_{trace}(\mathbf{S})
+\end{gather}
+where $E_{data}$ is a data attachment term, $E_{trace}$ favours a low-rank shape matrix, and $E_{reg}$ is a term for the spatial regularization of the trajectories in $\mathbf{S}$. The positive constants $\lambda$ and $\tau$ are weights that control the balance between these terms. They now describe each of these terms in detail.
+
+The {\bf first term} ($E_{data}$) is a quadratic penalty of the image reprojection error~\cite{dense}\\
+\begin{gather}
+E_{data} = \frac{1}{2}||\mathbf{W} - \mathbf{RS}||_{\mathcal{F}}^2
+\end{gather}
+where $||\cdot||_{\mathcal{F}}$ denotes the Frobenius norm of a matrix. This term penalizes deviations of the image measurements.
+
+
+The {\bf second term} ($E_{reg}$) enforces edge-preserving spatial regulatrization of the dense 3D trajectories that constitute the columns of $\mathbf{S}$. To formulate this term, let $i$ be an index ($i$ = 1,2,3) that selects the $X$, $Y$ or $Z$ coordinate of a 3D point. $S_j^i$ will then be the $i$-th row of the 3D shape $\mathbf{S}_\mathbf{f}$. Since the 3D points that they reconstruct are a associated with projected pixel locations on the reference image $I_{ref}$, each element of $S_j^i$ is associated with a specific pixel of $I_{ref}$. By arranging these elements in the image grid of $I_{ref}$, they consider $S_j^i$ as a discrete 2D iamge of the same size as $I_{ref}$. They now denote the 2D gradient of this image at pixel $p$ by $\nabla S_f^i(p)$. Following~\cite{first}, they define this discrete gradient using forward differences in both horizontal and vertical directions. They define $E_{reg}$ as the summation of discretized Total Variation regularizers $TV\{\cdot\}$~\cite{dense}:\\
+\begin{gather}
+E_{reg} = \sum_{f=1}^F\sum_{i=1}^3TV\{S_f^i\} = \sum_{f=1}^F\sum_{i=1}^3\sum_{p=1}^N||\nabla S_f^i(p)||
+\end{gather}
+
+The {\bf third term} ($E_{trace}$) penalises the number of independent shapes needed to represent the deformable scene. This is based on the realistic assumption that the shapes that a deforming object undergoes over time lie on a low-dimensionaal linear subspace. Instead of using some a priori dimension for this subspace to enforce a hard rank constraint, similarly to~\cite{A}, they penalize the rank of the $F\times 3N$ matrix $P(\mathbf{S})$. This is implemented using the $trace~norm$$||\cdot||$, which is the tightest convex relation of the rank of a matrix and is given by the sum of its singular values $\Lambda_j$~\cite{dense}:\\
+\begin{gather}
+E_{trace} = ||P(\mathbf{S})|| = \sum_{j=1}^{min(F,3N)}\Lambda_j
+\end{gather}
+
+\section{Synthetic face sequences}
+
+In this section authors evaluate the performance of their method quantitatively on sequences generated using dense ground truth 3D data of a deforming face. They generate four different sequences that differ in the number of frames and the range and smoothness of the camera rotations and deformations, just as shown at Fig.~\ref{fig}. By projecting the 3D data onto an iamge using an orthographic camera, they derived dense 2D tracks, which they feeded as input to the NRS$f$M estimations. 
+
+
+{\small
+\bibliographystyle{ieee}
+\bibliography{dense2}
+}
+
+
+
+
+
+\end{document}
