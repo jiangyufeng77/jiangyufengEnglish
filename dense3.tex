@@ -1,0 +1,120 @@
+\documentclass[10pt,twocolumn,letterpaper]{article}
+
+\usepackage{cvpr}
+\usepackage{times}
+\usepackage{epsfig}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{balance}
+\usepackage[pagebackref=true,breaklinks=true, letterpaper=true, colorlinks,bookmarks=false]{hyperref}
+
+\cvprfinalcopy
+\def\cvprPaperID{****}
+\def\httilde{\mbox{\tt\raisebox{-.5ex}{\symbol{126}}}}
+
+% Pages are numbered in submission mode, and unnumbered in camera-ready
+\ifcvprfinal\pagestyle{empty}\fi
+
+\begin{document}
+\title{Dense Variational Reconstruction of Non-Rigid Surfaces from Monocular Video}
+\author{Yufeng Jiang}
+\maketitle
+\balance
+
+\section{Optimisation of the proposed energy}
+
+In this section, authors solve the minimization of the proposed energy, that can be written as follows~\cite{dense}:\\
+\begin{gather}
+\mathop{\min}\limits_{\mathbf{S},\mathbf{R}}\frac{\lambda}{2}||\mathbf{W} - \mathbf{RS}||_{\mathcal{F}}^2 + \sum_{f,i,p}||\nabla S_f^i(p)|| + \tau||P(\mathbf{S})||_{\ast}
+\label{eq1}
+\end{gather}
+Note that this energy is biconvex because of the bilinear term in $E_{data}$. They alternate between the estimation of the motion matrix $\mathbf{R}$ and the shape matrix $\mathbf{S}$ leaving the other fixed to minimize it. 
+
+\subsection{Motion matrix estimation}
+
+The first althernation step involves the refinement of the motion $\mathbf{R}$ by minimisinig Eq.~\ref{eq1} at the basis of the knowned shape matrix $\mathbf{S}$. Authors parameterize the camera matrices $\mathbf{R}_f$ using quaternions, which guarantee orthnonrmality. Only the term $E_{data}$ depends on $\mathbf{R}$ and they minimise it using Levenberg-Marquardt. 
+
+\subsection{Shape estimation}
+
+The second alternation strp assumes that the motion matrix $\mathbf{R}$ is known and minimises Eq.~\ref{eq1} to the shape matrix $\mathbf{S}$. It is non-trivial to minimise it using standard gradient descent methods. To facilitate such minimisation they use proximal splitting techniques~\cite{A} to decouple the trace norm and TV regularisation parts of the enenrgy. They introduce an auxiliary variable $\bar{\mathbf{S}}$ by alternatin between the following two minimizations~\cite{dense}:\\
+\begin{gather}
+\mathop{\min}\limits_{\mathbf{S}}\frac{1}{2\theta}||\mathbf{S} - \bar{\mathbf{S}}||_{\mathcal{F}}^2 + \frac{\lambda}{2}||\mathbf{W} - \mathbf{RS}||_{\mathcal{F}}^2 + \sum_{f,i,p}||\nabla S_f^i(p)||
+\label{eq2}
+\end{gather}
+\begin{gather}
+\mathop{\min}\limits_{\bar{\mathbf{S}}}\frac{1}{2\theta}||\mathbf{S} - \bar{\mathbf{S}}||_{\mathcal{F}}^2 + \tau||P(\bar{\mathbf{S}})||_{\ast}
+\label{eq3}
+\end{gather}
+where $\theta$ is a quadratic relaxation parameter that is relatively small so that the optimal $\mathbf{S}$ and $\bar{\mathbf{S}}$ are close. They can efficiently solve the problems Eq.~\ref{eq2} and Eq.~\ref{eq3} using convex optimization techniques.\\
+\\
+
+\begin{figure*}
+\begin{center}
+\includegraphics[width=17cm]{d31.png}
+\end{center}
+\caption{3D reconstruction results of the real face sequence. (a) Input images. (b) Corresponding 3D shapes from original viewpoint of the camera while the face rotates and deforms. (c-d) Shape deformation as observed from three-quarter and profile views respectively (after taking out the rotational component of the face). (e) Rendered surfaces from a different viewpoint, using computed deformations and rotations with augmented texture placed on the reference image. See supplementary material for videos.}
+\label{fig}
+\end{figure*}
+
+{\bf Solving problem} The energy in Eq.~\ref{eq2} is convex but because of the TV regularisation term it is non-differentiable. However, using the Legendre-Fenchel transform, they can dualise the regularization term in Eq.~\ref{eq2} and rewrite the corresponding minimisation in its form as~\cite{dense}:\\
+\begin{equation}
+\begin{gathered}
+\mathop{\min}\limits_{\mathbf{S}}\mathop{\max}\limits_{\mathbf{q}} \left\{\frac{1}{2\theta}||\mathbf{S} - \bar{\mathbf{S}}||_{\mathcal{F}}^2 + \frac{\lambda}{2}||\mathbf{W} - \mathbf{RS}||_{\mathcal{F}}^2 \right. \\
+\left. + \sum_{f,i,p}\{S_{fi}(p)\nabla^{\ast}\mathbf{q}_f^i(p) - \delta(\mathbf{q}_f^i(p))\} \right\}
+\label{eq4}
+\end{gathered}
+\end{equation}
+where $\mathbf{q}$ is the dual variable that contains the 2-vectors $\mathbf{q}_f^i(p)$, for each frame $f$, coordinate $i$ and pixel $p$. Also, $\nabla^{\ast}$ is the adjoint of the discrete gradient operatior $\nabla$ and can be expreseed as $\nabla^{\ast} = -div(\cdot)$, where $div$ is the divergence operator, after discretisation using backward differences~\cite{first}. Finally, $\delta(\cdot)$ is the indicator function of the unit ball~\cite{dense}:\\
+\[ \delta(\mathbf{s}) = 
+\begin{cases}
+0 & \text{if}~~||\mathbf{s}||\le 1 \\
+\infty & \text{if}~~||\mathbf{s}|| > 1
+\tag{5}
+\label{eq5}
+\end{cases}
+\]\\
+Following duality principles~\cite{first}, they solve the saddle point problem Eq.~\ref{eq4} by deriving a primal-dual algorithm.
+
+\section{Experimental evaluation}
+
+Tab.~\ref{tab} shows the results for each method. Authors define the normalised per frame RMS error for the reconstruted 3D shape $\mathbf{S}_f$ with respect to the corresponding ground truth shape $\mathbf{S}_f^{GT}$ as: $e_{3D} = \frac{||\mathbf{S}_f - \mathbf{S}_f^{GT}||_{\mathcal{F}}}{||\mathbf{S}_f^{GT}||_{\mathcal{F}}}$. They report the mean RMS error over all frames. They also provide the rank of the reconstructed result for each case\footnote{Since the trace norm approximation of the rank results in some sin- gular values being small but not exactly 0, for our method (case $\tau$ ̸= 0) we report the rank of the optimal 3D reconstructions retaining the singular values of P ($\mathbf{S}$) that explain 99\% of the shape variance.}
+
+{\bf Sequence 1.} In this 10 frame long sequence, each frame corresponds to a different facial expression. The results shown on the first row of Tab.~\ref{tab} reveal that both MP and TB fail to reconstruct this sequence while their approach performs well.
+
+{\bf Sequence 2.} This simple fact allows MP and TB to reduce their errors substantially, which indicates that large rotations help in NRS$f$M. The main drawback is that establishing 2D correspondences under this amount of toration would be unrealistic in a real world scenario due to occlusions.
+
+{\bf Sequence 3.} 99 frame long sequence generated by linearly interpolating between pairs of views to obtain smooth 3D defromations. Realistic rotations that contain some high frequencies are simulated by upscaling their algorithm on the real face sequence just as shown at Fig.~\ref{fig}.
+
+{\bf Sequence 4.} This setup is equivalent to the previous one with the exception that the rotations are projected onto a low frequency subspace to simulate the case of both smooth rotations and deformations.
+
+\begin{table}
+\begin{center}
+\begin{tabular}{|c||c|c|c|c|}
+  \hline
+   & TB~\cite{Trajectory} & MP~\cite{Optimal} & Ours & Ours($\tau=0$) \\
+   \hline
+   Seq.1 & 18.38\% & 19.44\% & {\bf 4.01}\% &  4.13\% \\
+   Seq.2 & 7.47\% & 4.87\% & {\bf 3.45}\% & 3.76\% \\
+   Seq.3 & 4.50\% & 5.13\% & {\bf 2.60}\% & 3.32\% \\
+   Seq.4 & 6.61\% & 5.81\% & {\bf 2.81}\% & 3.89\% \\
+   \hline
+\end{tabular}
+\end{center}
+\caption{Quantitative evaluation on 4 synthetic face sequences. We show average RMS 3D reconstruction errors for TB~\cite{Trajectory}, MP~\cite{Optimal} and our approach. In all cases, the rank of the reconstructed result is shown in brackets.}
+\label{tab}
+\end{table}
+
+
+{\small
+\bibliographystyle{ieee}
+\bibliography{dense3}
+}
+
+
+
+
+
+
+
+\end{document}
