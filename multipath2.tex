@@ -1,0 +1,106 @@
+\documentclass[10pt,twocolumn,letterpaper]{article}
+
+\usepackage{cvpr}
+\usepackage{times}
+\usepackage{epsfig}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{balance}
+\usepackage[pagebackref=true,breaklinks=true, letterpaper=true, colorlinks,bookmarks=false]{hyperref}
+
+\cvprfinalcopy
+\def\cvprPaperID{****}
+\def\httilde{\mbox{\tt\raisebox{-.5ex}{\symbol{126}}}}
+
+% Pages are numbered in submission mode, and unnumbered in camera-ready
+\ifcvprfinal\pagestyle{empty}\fi
+
+\begin{document}
+\title{Multipath Sparse Coding Using Hierarchical Matching Pursuit}
+\author{Yufeng Jiang}
+\maketitle
+
+\section{Related Work}
+
+In the past few years, a growing amount of research on visual recognition has focused on learning rich features using unsupervised and supervised hierachical architectures. \\
+{\bf Deep Networks:} Deep belief nets~\cite{A} learn a hierarchy of features, layer by layer, using the unsupervised restricted Boltzmann machine. The learned weights are then further adjusted to the current task using supervised information. To make deep belief nets applicable to full-size images, convolutional deep belief nets~\cite{Convolutional} use a small receptive field and share the weights between the hidden and visible layers among all locatios in an image. Deconvolutional networks~\cite{Adaptive} convolutionally decompose images in an unsupervised way under a sparsity constraint. Deep convolutional neural networks~\cite{classification} won the ImageNet Large Scale Visual Recognition Challenge 2012 and demonstrated their potential for training on large, labeled datasets.\\
+{\bf Sparse Coding:} For many years, sparse coding~\cite{Emergence} has been a popular tool for modeling images. Sparse coding on top of raw pathes or SIFT features has achieved state-of-the-art performance on face recognition, texture segmentation~\cite{Discriminative}. Very recently, multi-layer sparse coding networks including hierarchial sparse coding and hierarchical matching pursuit have been proposed for building multiple level features from raw sensor data. Such networks learn codebooks at each layer in an unsupervised way such that image patches or pooled features can be represented by a sparse, linear combination of codebook entries. 
+
+\section{Multipath Sparse Coding}
+
+Authors propose MI-KSVD to solve the above optimization by adapting the well-known KSVD algorithm. MI-KSVD decomposes the above optimization into two subproblems, {\bf Encoding} and {\bf Codebook Update}, and solves them in an alternating manner. During each iteration, the current codebook $D$ is used to encode the data $Y$ by computing the sparse code matrix $X$. Then, the codewords of the codebook are updated one at a time, resulting in a new codebook.\\
+{\bf Encoding:} Given a codebook $D$, the encoding problem is to find the sparse code x of y, leading to the following optimization~\cite{multipath}\\
+\begin{gather}
+\mathop{\min}\limits_{x}||y - \mathbf{D}x||^2~~~~~~\emph{s.t.}~~||x||_0\le\mathbf{K}
+\end{gather}
+Here, orthogonal matching pursuit (OMP) is used to compute the sparse code $x$ due to its efficiency and effectiveness. OMP selects the codeword best correlated with the current residual at each iteration, which is the reconstruction error remaining after the codewords chosen thus far are subtracted. At the first iteration, this residual is exactly the observation $y$. Once a new codeword is selected, the observation is orthogonally projected onto the span of all the previously selected codewords and the residual is recomoputed. The procedure is repeated until the desired sparsity level $K$ is rearched. \\
+{\bf Codebook Update:} Given the sparse code matrix $X$, the codewords $d_m$ are optimized sequentially. In the $m$-th step, the $m$-th codeword and its sparse codes can be computed by minimizing the residual matrix and the mutual coherence corresponding to that codeword~\cite{multipath}\\
+\begin{gather}
+\mathop{\min}\limits_{d_m}||\mathbf{Y} - \mathbf{DX}||_{F}^2 + \lambda\sum_{i=1}^M\sum_{j=1,j\ne i}^M|d_i^{\top}d_j|\\
+\emph{s.t.}~||d_m||_2 = 1 \notag
+\end{gather}
+Removing the constant terms, the above optimization problem can be simplified to~\cite{multipath} \\
+\begin{gather}
+\mathop{\min}\limits_{d_m}\{\bar{x}_m^\top\bar{x}_md_m^{\top} d_m - 2\mathbf{R}_m\bar{x}_m + \lambda\sum_{j=1,j\ne m}^M|d_j^\top d_m|\}\\
+\emph{s.t.}~||d_m||_2 = 1 \notag
+\label{eq3}
+\end{gather}
+where $\bar{x}_i^{\top}$ are the rows of $\mathbf{X}$, and $\mathbf{R}_m = \mathbf{Y} - \sum_{i\ne m}d_i\bar{x}_i^{\top}$ is the residual matrix for the $m$-th codeword. This matrix contains the differences between the observations and their approximations using all other codewords and their sparse codes. To avoid introducint new non-zero entries in the sparse code matrix $\mathbf{X}$, the update process only considers observations that use the $m$-th codeword. They solve Eq.~\ref{eq3} by standard gradient descent with initialization $d_m^0 = \frac{\mathbf{R}_m\bar{x}_m}{||\mathbf{R}_m\bar{x}_m||_2}$, which is optimal when ignoring the mutual incoherence penalty.
+
+In practice, authors find that MI-KSVD converges to good codebooks for a wide range of initializations. Fig.~\ref{fig1} used at~\cite{multipath}.compares the reconstruction error of the proposed MI-KSVD and KSVD on both training data and test data. This is remarkable since the additional penalty usually increase the reconstruction error. The codebook learned by MI-KSVD has average mutual coherence (AMC) $\frac{1}{M(M-1)}\sum_{i=1}^M\sum_{j=1,j\ne i}^M|d_i^{\top}d_j|=0.118$, substantially smaller than 0.153 yielded by KSVD.
+\begin{figure}
+\begin{center}
+\includegraphics[width=8cm]{m21.png}
+\end{center}
+\caption{Mean square error as a function of iterations. Training and test data consists of 1,000,000 36$\times$36 image patches and 100,000 36$\times$36 image patches sampled from images, respectively.}
+\label{fig1}
+\end{figure}
+
+\begin{figure}
+\begin{center}
+\includegraphics[width=8cm]{m22.png}
+\end{center}
+\caption{Learned codebooks by KSVD ($left$) and MI-KSVD ($right$) on Caltech-101. 225 codewords randomly selected from 1000 codewords are shown.}
+\label{fig2}
+\end{figure}
+
+\balance
+
+\subsection{MI-KSVD}
+
+They compare KSVD and MI-KSVD for a one-layer HMP network with image patches of size 36$\times$36 on the Caltech-101 dataset. Authors choose a one-layer HMP due to the convenience of showing the learned codebooks. They learn codebooks of size 1000 with sparsity level 5 on 1,000,000 sampled 36$\times$36 raw patches. The tradeoff parameter $\lambda$ is chosen by performing five-fold cross validation on the training set. 
+
+\begin{table}
+\begin{center}
+\begin{tabular}{|c|c|c|c|}
+   \hline
+   & Test Accuracy & AMC & Training Time \\
+   \hline
+   KSVD & 71.9 & 0.153 & 6126.1s \\
+   \hline
+   MI-KSVD & 73.1 & 0.118 & 6713.8s \\
+   \hline
+\end{tabular}
+\end{center}
+\caption{MI-KSVD and KSVD on Caltech-101. Both of them are stopped after 100 iterations that are sufficient for convergence.}
+\label{tab}
+\end{table}
+
+They visualize the codebooks learned by KSVD and MI-KSVD in Fig.~\ref{fig2} shown at~\cite{multipath}.. First of all, the learned dictionaries have very rich appearahces and include uniform colors of red, green and blue, transition codewords between different colors, gray and color edges, double gray and color edges, and so on. They compare KSVD and MI-KSVD in Tab.~\ref{tab} shown at~\cite{multipath}. in terms of test accuracy, training time and average mutual coherence (AMC). As can been seen, MI-KSVD leads to higher test accuracy and lower average mutual coherence than KSVD, with comparable training time.
+
+{\small
+\bibliographystyle{ieee}
+\bibliography{multipath2}
+}
+
+
+
+
+
+
+
+
+
+
+\end{document}
