@@ -1,0 +1,103 @@
+\documentclass[10pt,twocolumn,letterpaper]{article}
+
+\usepackage{cvpr}
+\usepackage{times}
+\usepackage{epsfig}
+\usepackage{graphicx,bbm}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{balance}
+\usepackage[pagebackref=true,breaklinks=true, letterpaper=true, colorlinks,bookmarks=false]{hyperref}
+
+\cvprfinalcopy
+\def\cvprPaperID{****}
+\def\httilde{\mbox{\tt\raisebox{-.5ex}{\symbol{126}}}}
+
+% Pages are numbered in submission mode, and unnumbered in camera-ready
+\ifcvprfinal\pagestyle{empty}\fi
+
+\begin{document}
+\title{Action Recognition by Hierarchical Sequence Summarization}
+\author{Yufeng Jiang}
+\maketitle
+
+\begin{abstract}
+
+Recent progress has shown that learning from hierarchical feature representations leads to improvements in various computer vision tasks. Motivated by the observation that human activity data contains information at various temporal resoluetions, authors present a hierarchical sequence summarization approach for action recognition that learns multiple layers of discriminative feature representations at different temporal granularities. They build up a hierarchy dynamically and recursively by alternating sequence learning and sequence summarization. For sequence learning they use CRFs with latent variables to learn hidden spatio-temporal dynamics; for seqnence summarization they group observations that have similar semantic meaning in the latent space. For each layer they learn an abstract feature representation through non-linear gate funcitons.
+
+\end{abstract}
+
+\section{Introduction}
+
+Recent progress has shown that learning from hierarchical feature representations leads to significant improvements in various computer vision tasks, including spatial pyramids of image pathches in object detection~\cite{Beyond}, higher order potentials in object segmentation~\cite{Learning}, and the deep learning with multiple hidden layers~\cite{hierarchical,On}. Although there is much differnece in algorithmic details, these approaches share the common goal of learning from hierarchical feature representations in order to capture high-level concepts that are otherwise difficult to express with a single reperesentation approach. 
+
+Action recognition is one particular area that can benefit from such representations, because human activity data contains information at varitous spatio-temporal resolutions. People may perform gestures slowly to enphasize a point, but more rapidly on unintentional movements or meaningless geatures. The resulting data stream will have many similar obsevations with occasional and irregualr changes. As a result, capturing discriminative information from a single temporal representation may prove to be difficult. Section~\ref{s1} details their Hierarchical Sequence Summarization (HSS) model.
+
+\section{Hierarchical Sequence Summarization}\label{s1}
+
+Authors propose to capture complex spatio-temporal dynamics in human activity data by learning from a hierarchical sequence summary representation. Intuituvely, each layer in the hiercrchy is a temporally coarser-grained summary of the sequnce from the preceding layer.
+
+Their approach builds the hierarchy by alternating sequence learning and sequence summarization. They define their notation in Section~\ref{s2}, describe sequence learning in Section~\ref{s3}.
+
+\subsection{Notation}\label{s2}
+
+Input to their model is a time-ordered sequence $\mathbf{x} = [\mathbf{x}_1;\dots;\mathbf{x}_T]$ of length $T$; each per-frame observation $\mathbf{x}_t \in \mathbb{R}^D$ is of dimension $D$ and can be any type of action feature. Each sequence is labeled $y$ from a finite alphabet set, $y \in \mathcal{Y}$.
+
+They denote a sequence summary at the $l$-th layer in the hierarchy by $\mathbf{x}^l = [\mathbf{x}_1^l];\dots;\mathbf{x}_Y^l$. A super observation $\mathbf{x}_t^l$ is a group of observations from the preceding layer, and they define $c(\mathbf{x}_t^l)$ as a reference operator of $\mathbf{x}_t^l$ that returns the group of observations; for $l = 1$ they set $c(\mathbf{x}_t^l) = \mathbf{x}_t$.
+
+\subsection{Sequence Learning}\label{s3}
+
+Following~\cite{Hidden}, they use CRFs with latent variables to capture hidden dynamics in each layer in the hierarchy. Using a set of latent variables $\mathbf{h} \in \mathcal{H}$, the conditional probability distribution is defined as~\cite{action}\\
+\begin{gather}
+p(y|\mathbf{x};\mathbf{w}) = \frac{1}{Z(\mathbf{x};\mathbf{w})}\sum_hexpF(y,\mathbf{h},\mathbf{x};\mathbf{w})
+\end{gather}
+where $\mathbf{w}$ is a model parameter vector, $F(\cdot)$ is a generic feature function, and $Z(\mathbf{x};\mathbf{w}) = \sum_{y',\mathbf{h},\mathbf{x};\mathbf{w}}$ is a normalization term.
+
+{\bf Feature Function:} They define the featuer function as~\cite{action}\\
+\begin{gather}
+\label{2}
+F(y,\mathbf{h},\mathbf{x};\mathbf{w}) = \sum_tf^1(\mathbf{h},\mathbf{x},t;\mathbf{w}) + \sum_tf^2(y,\mathbf{h},t;\mathbf{w})\\ \notag 
++ \sum_tf^3(y,\mathbf{h},t,t+1;\mathbf{w})
+\end{gather}
+Their definition of feature function is different from that of~\cite{Hidden} to accommondate the hierarchical nature of their approach. Specifically, they define the super observation feature function that is different from~\cite{Hidden}.
+
+\begin{figure}
+\begin{center}
+\includegraphics[width=8cm]{a11.png}
+\end{center}
+\caption{{\bf Illustration of our super observation feature function.} (a) Observation feature function similar to Quattoni \emph{et al.}~\cite{Hidden}, (b) our approach uses an additional set of gate functions to learn an abstract feature representation of super observations.}
+\label{fig1}
+\end{figure}
+
+\balance
+
+Let $\mathbbm{1}[\cdot]$ be an indicator function, and $y' \in \mathcal{Y}$ and $(h',h'') \in \mathcal{H}$ be the assignments to the label and latent variables. The second and the third terms in Equation~\ref{2} are the same as those defined in~\cite{Hidden}, \emph{i.e.} the label feature function $f^2(\cdot) = w_{y,h}\mathbbm{1}[y = y']\mathbbm{1}[h_t = h']$ and the transition feature function $f^3(\cdot) = w_{y,h,h}\mathbbm{1}[y = y']\mathbbm{1}[h_t = h']\mathbbm{1}[h_{t+1} = h'']$.
+
+Their super observation feature function incorporates a set of non-linear gate functions $G$, as used in neural networks, to learn an abstract feature representation of super observations (see Figure~\ref{fig1}). Let $\psi_g(\mathbf{x},t;\mathbf{w})$ be a function that computes, using a gate function $g(\cdot)$, an average of gated output values from each observation contained in a super observation $\mathbf{x}' \in c(\mathbf{x}_t)$~\cite{action},\\
+\begin{gather}
+\psi_g(\mathbf{x},t;\mathbf{w}) = \frac{1}{|c(\mathbf{x}_t)|}\sum_{\mathbf{x}'\in c(\mathbf{x}_t)}g(\sum_gw_{g,d}x'_d)
+\end{gather}
+They adopt the popular logistic function as their gate function. $g(z) = 1/(1 + exp(-z))$, which has been shown to perform well in various tasks~\cite{Learning}. They define their super observation feature function as~\cite{action}\\
+\begin{gather}
+f^1(\mathbf{h},\mathbf{x},t;\mathbf{w}) = \sum_{g\in G}w_{g,h}\mathbbm{1}[h_t = h']\psi_g(\mathbf{x},t;\mathbf{w}).
+\end{gather}
+where each $g\in G$ has the same form. The set of gate functions $G$ creates an additional layer between latent variables and observations, and has a similar effect to that of the neural network. This feature function automatically learns an abstract representation of super observations and provides more discriminative information for capturing complex spatio-temporal patterns in human activity data.
+
+
+{\small
+\bibliographystyle{ieee}
+\bibliography{action}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+\end{document}
