@@ -1,0 +1,120 @@
+\documentclass[10pt,twocolumn,letterpaper]{article}
+
+\usepackage{cvpr}
+\usepackage{times}
+\usepackage{epsfig}
+\usepackage{graphicx,bbm}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{balance}
+\usepackage[pagebackref=true,breaklinks=true, letterpaper=true, colorlinks,bookmarks=false]{hyperref}
+
+\cvprfinalcopy
+\def\cvprPaperID{****}
+\def\httilde{\mbox{\tt\raisebox{-.5ex}{\symbol{126}}}}
+
+% Pages are numbered in submission mode, and unnumbered in camera-ready
+\ifcvprfinal\pagestyle{empty}\fi
+
+\begin{document}
+\title{Action Recognition by Hierarchical Sequence Summarization}
+\author{Yufeng Jiang}
+\maketitle
+
+\section{Related Work}
+
+Learning from a hierarchical feature representation has been a recurring theme in action recognition~\cite{model,spatio,hierarchy}. One approach uses the popular bag-of-words approach, which detects spatio-temporal interest points (STIP)~\cite{On}at local video volumes, constructs a bag-of-words represen- tation of HOG/HOF features extracted around STIPs, and learns an SVM classifier to categorize actions~\cite{realistic}. This has been used to construct a hierarchical feature representation that is more discriminative and context-rich~\cite{spatio,hierarchy}. Sun \emph{et al.}~\cite{spatio} defined three levels of context hierarchy with SIFT-based trajectories, while Wang \emph{et al.}~\cite{recognition} learned interactions within local contexts at multiple spatio-temporal scales. Kovashaka and Grauman~\cite{hierarchy} proposed to learn class conditional visual words by grouping local features of motion and appearance at multiple space-time scales. While these approaches showed significant improvements over the local feature representation, they use non-temporal machine learning algorithms to classify actions, limiting their application to real-world scenarios that exhibit complex temporal structures.
+
+\section{Complexity Analysis}
+
+To see the effectiveness of the gate functions, consider another definition of the observation feature function, one without the gate functions,\\
+\begin{gather}
+f^1(\mathbf{h},\mathbf{x},t;\mathbf{w}) = \frac{1}{|c(\mathbf{x}_t)|}\sum_{\mathbf{x'}}\sum_{d}w_{h,d}\mathbbm{1}[h_t = h']x'_d
+\end{gather}
+This does not have the automatic feature learning step, and simply represents the feature as an average of the linearcombinations of features $x'_d$ and weights $w_{h,d}$. As evidenced by the deep learning literature~\cite{Learning}, the step of non-linear feature learning leads to a more discriminative representation.
+
+Our model parameter vector is $w = [w_{g,h};w_{g,d};w_{y,h};w_{y,h,h}]$ and has the dimension of $GH+GD+Y~H+Y~HH$, with the number of gate functions G, the number of latent states $H$, the feature dimension $D$, and the number of class labels $Y$. Given a chain-structured sequence x of length $T$, we can solve the inference problem at $O(YTH^2)$ using a belief propagation algorithm.
+
+\subsection{Sequence Summarization}
+
+There are many ways to summarize $\mathbf{x}^l$ to obtain a temporally coarser-grained sequence summary $\mathbf{x}^{l+1}$. One simple approach is to group observations from $\mathbf{x}^l$ at a fixed time interval, \emph{e.g.}, collapse every two consecutive observations and obtain a sequence with half the length of $\mathbf{x}^l$. However, as we show in our experiments, this approach may fail to preserve important local information and result in over-grouping and over-smoothing.
+
+Let $\mathcal{G} = (\mathcal{V, E, W})$ be a weighed graph at the $l$-th layer, where $\mathcal{V}$ is a set of nodes (latent variables), $\mathcal{E}$ is a set of edges induced by a linear chain, and $\mathcal{W}$ is a set of edge weights defined as the similarity between two nodes. The algorithm produces a set of super observations $\mathcal{C} = \{c(\mathbf{x}_1^{l+1},\dots,c(\mathbf{x}_T^{l+1}))\}$.
+
+The algorithm merges $c(\mathbf{x}_s^{l+1}$ and $c(\mathbf{x}_t^{l+1})$ if the difference between the groups is smaller than the minimum internal difference within the groups. Let teh internal difference of a group $c$ be $Int(c) = max_{(s,t)\in mst(c,\mathcal{E}_c)}w_{st}$, \emph{i.e.}, the largest weight in the minimum spanning tree of the group $c$ with the corresponding edge set $\mathcal{E}_c$. The minimum internal difference between two groups $c_s$ and $c_t$ is defined as $MInt(c_s,c_t) = min(Int(c_s) + \tau(c_s), Int(c_t) + \tau(c_t))$ where $\tau(c_s) = \tau /|c_s|$ is a threshold function; it controls the degree to which the difference two groups must be greater than their internal differences in order for there to be evidence of a boundary between them.
+
+{\bf Similarity Metric:} They define the similarity between two nodes (\emph{i.e.}, the weight $w_{st}$) as~\cite{action}\\
+\begin{gather}
+w_{st} = \sum_{y,h'}|p(h_s = h'|y,\mathbf{x};\mathbf{w}) - p(h_t = h'|y,\mathbf{x};\mathbf{w}|
+\end{gather}
+that is , it is the sum of absolute differences of the posterior probabilities between the two corresponding latent variables, marginalized over the class label.\footnote{Other metrics can also be defined in the latent space. We experimented with different weight functions, but the performance difference was not significant. We chose this definition because it performed well across different datasets and is computationally simple.}
+
+\subsection{The HSS Model}
+
+They formulate their model, Hierarchical Sequence Summarization (HSS), as the conditional probability distribution\\
+\begin{gather}
+p(y|\mathbf{x};\mathbf{w}) \propto p(y|\mathbf{x}^1,\dots,\mathbf{x}^{\mathcal{L}};\mathbf{w}) \propto \prod_{l=1}^{\mathcal{L}} p(y|\mathbf{x}^l;\mathbf{w^l}).
+\end{gather}
+Note the layer-specific model parameter vector $\mathbf{w}^l$, $\mathbf{w} = [\mathbf{w}^1,\dots,\mathbf{w}^{\mathcal{L}}]$.
+
+The first derivation comes from their reformulation of $p(y|\mathbf{x};\mathbf{w})$ using hierarchical seqence summaries, the second comes from the way they construct the sequence summaries. To see this, recall that they obtain a sequence summary $\mathbf{x}^{l+1}$ given the posterior of latent variables $p(\mathbf{h}^l|y,\mathbf{x}^l;\mathbf{w}^l)$ , and the posterior is computed based on the parameter vector $\mathbf{w}^l$. To make their model tractable, they assume that a parameter vector at each layer $\mathbf{w}^l$ is independent of each other. As a result, they can express the second term as the product of $p(y|\mathbf{x}^l;\mathbf{w}^l)$.
+
+\begin{table}
+\begin{center}
+\begin{tabular}{|c|c|}
+ \hline
+ Model & Mean Accuracy \\ 
+ \hline
+ HMM (from~\cite{Hidden}) & 84.83\% \\ 
+ CRF (from~\cite{Hidden}) & 86.03\% \\ 
+ MM-HCRF (from~\cite{Multi}) & 93.79\% \\
+ Quattoni \emph{et al.}~\cite{Multimodal} & 93.81\% \\
+ Shyr \emph{et al.}~\cite{Conditional} & 95.30\% \\
+ Song \emph{et al.}~\cite{Multi} & 97.79\% \\ 
+ HCNF & 97.79\% \\
+ \hline
+ {\bf Our HSS Model} & {\bf 99.59\%} \\ 
+ \hline
+\end{tabular}
+\end{center}
+\caption{Experimental results from the ArmGesture dataset.}
+\label{tab1}
+\end{table}
+
+\begin{table}
+\begin{center}
+\begin{tabular}{|c|c|}
+  \hline
+  Model & Mean Accuracy \\
+  \hline
+  SVM (from~\cite{Modeling}) & 51.89\% \\
+  HMM (from~\cite{Modeling}) & 52.29\% \\
+  Bousmails \emph{et al.}~\cite{Modeling} & 64.22\% \\
+  Song \emph{et al.}~\cite{Multimodal} & 71.99\% \\
+  HCNF & 73.35\% \\
+  \hline
+  {\bf Our HSS Model} & {\bf 75.56\%} \\
+  \hline
+\end{tabular}
+\end{center}
+\caption{Experimental results from the Canal9 dataset.}
+\label{tab2}
+\end{table}
+
+\subsection{Results}
+
+Table~\ref{tab1} and Table~\ref{tab2}used at~\cite{action}shows experimental results on the ArmGesture and Canal9 datasets, respectively. They include previous results on each dataset reported in the literature; They also include the result obtained by their using CNF~\cite{Conditional} with latent variables (HCNF). As can be seen, their approach outperforms all the state-of-the-art results on the ArmGesture and Canal9 datasets. Notably, our approach achieves a near-perfect accuracy on the ArmGesture dataset (99.59\%).
+For the NATOPS dataset, the state-of-the-art result is 87.00\% by Song \emph{et al.}~\cite{Multi}. Their approach used a multiview HCRF to jointly learn view-shared and view-specific hidden dynamics, where the two views are defined as upper body joint configuration and hand shape information. Even without considering the multi-view nature of the dataset (they perform an early-fusion of the two views), their approach achieved a comparable accuracy of 85.00\%. This is still a significant improvement over various previous results using an early-fusion: HMM (from~\cite{Multi}, 76.67\%), HCRF (from~\cite{Multi}, 76.00\%), and HCNF (78.33\%).
+
+
+{\small
+\bibliographystyle{ieee}
+\bibliography{action2}}
+
+
+
+
+
+
+
+\end{document}
