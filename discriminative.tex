@@ -1,0 +1,77 @@
+\documentclass[10pt,twocolumn,letterpaper]{article}
+
+\usepackage{cvpr}
+\usepackage{times}
+\usepackage{epsfig}
+\usepackage{graphicx,bbm}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{balance}
+\usepackage[pagebackref=true,breaklinks=true, letterpaper=true, colorlinks,bookmarks=false]{hyperref}
+
+\cvprfinalcopy
+\def\cvprPaperID{****}
+\def\httilde{\mbox{\tt\raisebox{-.5ex}{\symbol{126}}}}
+
+% Pages are numbered in submission mode, and unnumbered in camera-ready
+\ifcvprfinal\pagestyle{empty}\fi
+
+\begin{document}
+\title{Discriminative Region Proposal Adversarial Networks for High-Quality Image-to-Image Translation}
+\author{Yufeng Jiang}
+\maketitle
+
+\begin{abstract}
+
+Generative Adversarial Networks (GANs) is one of the most promising methods for unsupervised learning in complex distribution in recent years. It has made some technologies like image-to-image develop quickly. However, it still has a great challenge at generating images with high-quality, especically at high-resolution and photo-reality. In this paper, authors present a novel Discriminative Region Proposal Adversarial Network (DRPANs) for high-quality image-to-image translation. Authors explore the patch discriminator to find the most artificial image patch by sliding windows with the output score map to solve the problem of artifacts and blur problems based on GAN. Meanwhile, authors also map the image patch onto the fake image synthesized by generator as discriminative region. Then, authors mask the real image corresponding to the fake image with the discriminative region to obtain the fake-mask image. The purpose of reviser is that it distinguishes the real from the fake-mask real for producing realistic details and improvses to generate high-quality image. 
+
+\end{abstract}
+
+\section{Introduction}
+\balance
+
+\begin{figure*}
+\begin{center}
+\includegraphics[width=12cm]{d11.png}
+\end{center}
+\caption{{\bf Left:} Our Discriminative Region Proposal network (DRPnet). {\bf Right:} Synthesized samples compared with previous works on Cityscapes validation ataset~\cite{The}. The regions within red window show obvious artifacts or deformation. Our method can synthesize images with clear structure and vivid details.}  
+\label{fig1}
+\end{figure*}
+
+\begin{figure*}
+\begin{center}
+\includegraphics[width=12cm]{d12.png}
+\end{center}
+\caption{The overall network architecture and data flow of our proposed Discriminative Region Proposal Adversarial Network (DRPAN), which is composed of three components: a generator, a discriminator, and a reviser, and is a unified model for image-to-image translation tasks.}
+\label{fig2}
+\end{figure*}
+
+Authors consider that people think the synthesized image is fake because it contains local artificals, but they still can recognisize it by only gazing about 1000ms~\cite{Photographic}. People can get a realist scene from the coarse structure and fine details, and understand the corresponding of things around it. Motivated by this ability, the goal of this work is to develop an image-to-image translation system for high-quality image synthesis with clear structure and realistic details.
+
+People has make many efforts to develop an automatic image-to-image translation system. The straightforward appproach was to optimize on pixel-wise space with L1 or L2 loss~\cite{Image,Fully}. However, both of them suffer from blur problem. From this consideration, auhtors decided to use GAN to do image-to-image translation. Although using GAN still encounters with the artifacts and unsmooth color distribution problems, and it is even hard to generate high-resolution photo-realistic images beacuse of the high dimension distribution~\cite{Conditional}.
+
+In this paper, authors decompose the procedure of iamge-to-image translation task into three steps. {\bf (i)} They generate a image with a global structure but some local artifacts through GAN. {\bf (ii)} They extract the most fake region from the generated image with the DRPnet shwon at Fig.~\ref{fig1}. {\bf (iii)} they implement image inpainting on the most fake region for more realistic result to obtain the most realistic image.
+
+From these resons mentioned before, authors explore a framework based on patch-wise discriminator to predict the discriminative score map and use sliding windows to find the most artificial region. Then, the proposed discriminative region is used to make the corresponding real sample and output as ``fake-mask real''. Finally, with the goal of generating realistic details, they propose a reviser to distinguish the real image to teh ``fake-mask real''. 
+
+\section{Method}
+
+Their image-to-image translation model called Discriminative Region Proposal Adversarial Networks (DRPANs) is composed of three components: a generator, a discriminator and a reviser. The discriminator explores PatchGAN to construct Discriminative Region Proposal network (DRPnet, see Fig.~\ref{fig1}) to extract the discriminative region for producing fake-mask real sample. The overall network architecture and data flow are illustrated in Fig.~\ref{fig2}.
+
+Their process of improving the quality of synthesized image. With the training of their DRPAN, the discriminative region of fake-mask real image (right) varies. And the quality of synthesized image (left) has been imporved and obtains the brighter score map (the first and the last). Although it is still difficult to distinguish the real from the synthesized image after training many times, DRPAN proposed by them can obtain the high-quality image through optimized by reviser at some details.
+
+{\small
+\bibliographystyle{ieee}
+\bibliography{discriminative}
+}
+
+
+
+
+
+
+
+
+
+
+\end{document}
