@@ -1,0 +1,110 @@
+\documentclass[10pt,twocolumn,letterpaper]{article}
+
+\usepackage{cvpr}
+\usepackage{times}
+\usepackage{epsfig}
+\usepackage{graphicx,bbm}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{balance}
+\usepackage[pagebackref=true,breaklinks=true, letterpaper=true, colorlinks,bookmarks=false]{hyperref}
+
+\cvprfinalcopy
+\def\cvprPaperID{****}
+\def\httilde{\mbox{\tt\raisebox{-.5ex}{\symbol{126}}}}
+
+% Pages are numbered in submission mode, and unnumbered in camera-ready
+\ifcvprfinal\pagestyle{empty}\fi
+
+\begin{document}
+\title{Generative Adversarial Nets}
+\author{Yufeng Jiang}
+\maketitle
+
+\begin{abstract}
+
+Authors propose a noval framework for estimating generative models via an adversarial process. They simultaneously train two models: a generative model $G$ that captures the data distribution, and a discriminative model $D$ that estimates the probability that a sample came from the training data rather than $G$. The training procedure for $G$ is to maximize the probability of $D$ making a mistake. This framework corresponds to a minimax two-player game. In the space of arbitrary functions $G$ and $D$, a unique solution exists, with $G$ recoverign the training data distribution and $D$ equal to $\frac{1}{2}$ everywhere. In the case where $G$ and $D$ are defined by multilayer perceptrons, the entire system can be trained with backpropagation. 
+
+\end{abstract}
+
+\section{Introduction}
+
+The promise of deep learning is to discover rich, hierarchical models that represent probability distributions over the kinds of data encountered in artificial intelligence applications. So far, the most striking successes in deep learning have involved discriminatinve models, usually those that map a high-dimensional, rich sensory input to a class label~\cite{Image}. Deep $generative$ models have had less of an impact, due to the difficulty of approximating many intractable probabilistic computations that arise in maximum likelihood estimation and related strategies, and due to difficulty of leverageing the benefits of piecewise linar units in the generative context. They propose a noval generative model estimation procedure that sidesteps these difficulties\footnote{All code and hyperparameters available at~\url{http://www.github.com/goodfeli/adversarial}}.
+
+\section{Adversarial nets}
+
+The adversarial modeling framework is most strightforward to apply when the models are both multilayer perceptrons. To learn the generator's distribution $p_g$ over data $\mathbf{x}$, authors define a prior on input noise variables $p_z(z)$, then represent a mapping to data space as $G(z;\theta_g)$, where $G$ is a differentiable function represented by a multilayer perceptron with parameters $\theta_g$. They also define a second multilayer perceptron $D(\mathbf{x};\theta_g)$ that outputs a single scalar. $D(\mathbf{x})$ represents the probability that $\mathbf{x}$ came from the data rather than $p_g$. $D$ and $G$ play the following two-layer minimax game with value function $V(G,D)$~\cite{gg}:\\
+\begin{gather}
+\mathop{\min}\limits_{G}\mathop{\max}\limits_DV(D,G) = \mathbb{E}_{\mathbf{x}\sim p_{data}(\mathbf{x})}[\log D(\mathbf{x})] \\
++ \mathbb{E}_{z\sim p_z(z)}[\log(1-D(g(z)))].\notag
+\label{eq1}
+\end{gather}
+
+\begin{figure*}
+\begin{center}
+\includegraphics[width=16cm]{g1.png}
+\end{center}
+\caption{(a) Consider an adversarial pair near convergence: $p_g$ is similar to $p_{data}$ and $D$ is a partially accurate classifier. (b) In the inner loop of the algorithm $D$ is trained to discriminate samples from data, converging to $D^{\ast}(\mathbf{x}) = \frac{p_{data(\mathbf{x})}}{p_{data}(\mathbf{x}) + p_g(\mathbf{x})}$}. (c) After an update to $G$, gradient of $D$ has guided $G(z)$ to flow to reions that are more likely to be classified as data. (d) After several steps of training, if $G$ and $D$ have enough capacity, they will reach a point at which both cannot improve because $p_g = p_{data}$. The discriminator is unable to differentiate between the two distributions,~\emph{i.e.} $D(\mathbf{x}) = \frac{1}{2}$  
+\label{fig1}
+\end{figure*}
+In the next section, they present a theoretical analysis of adversarial nets, essentially showing that the training criterion allows one to reover the data generating distribution as $G$ and $D$ are given enough capacity. See Fig.~\ref{fig1} for a less formal, more pedagogical explanation of the approach.
+
+\section{Theoretical Results}
+
+The generator $G$ implicitly defines a probability distribution $p_g$ as the distribution of the samples $G(z)$ obtained when $z\sim p_z$. The results of this section are done in a non-parametric setting.
+
+\subsection{Global Optimality of $p_g = p_{data}$}
+
+They first consider the optimal discriminator $D$ for any given generator $G$. For $G$ fixed, the optimal discriminator $D$ is~\cite{gg} \\
+\begin{gather}
+D^{\ast}_G(\mathbf{x}) = \frac{p_{data}(\mathbf{x})}{p_{data}(\mathbf{x}) + p_g(\mathbf{x})}
+\end{gather}
+The training criterion for the discriminator $D$, given any generator $G$, is to maximize the quantity $V(G,D)$~\cite{gg}\\
+\begin{gather}
+V(G,D) = \int_xp_{data}(\mathbf{x})\log(D(\mathbf(x))) + \int_xp_z\log(1-D(g(z)))dz\\ \notag =\int_xp_{data}(\mathbf{x})\log(D(\mathbf{x})) + p_g(\mathbf{x})\log(1-D(\mathbf{x}))dx 
+\end{gather}
+
+If $G$ and $D$ have enough capacity, the discriminator is allowed to reach its optimum given $G$, and $p_g$ is updated so as to improve the criterion~\cite{gg} \\
+\begin{gather}
+\mathbb{E}_{\mathbf{x}\sim p_{data}}[\log D_G^{\ast}(\mathbf{x})] + \mathbb{E}_{\mathbf{x}\sim p_g}[\log(1 - D_G^{\ast}(\mathbf{x}))]
+\end{gather}
+then $p_g$ converges to $p_{data}$. Consider $V(G,D) = U(p_g,D)$ as a function of $p_g$ as done in the above criterion.  
+
+\balance
+
+\section{Experiments}
+
+Authors trained adversarial nets an a range of datasets including MNIST~\cite{A}, the Toronto Face Database (TFD)~\cite{On}, and CIFAR-10~\cite{Auto}. Results are reperted in Tab.~\ref{tab}. This method of estimating the likelihood has somewhat high variance and does not perform well in hih dimensional spaces but it is the best method availiable to their knowledge. Advances in generative models that can sample but bot estimate likelihood directly motivate further research into how to evaluate such models.
+\begin{table}
+\begin{center}
+\begin{tabular}{c|c|c}
+  Model & MNIST & TFD \\
+  \hline
+  DBN & 138 $\pm$ 2 & 1909 $\pm$ 66 \\
+  Stacked CAE & 121 $\pm$ 1.6 & {\bf 2110} $\pm$ {\bf 50}\\
+  Deep GSN & 214 $\pm$ 1.1 & 1890 $\pm$ 29 \\
+  Adversarial nets & {\bf 225} $\pm$ {\bf 2} & {\bf 2057} $\pm$ {\bf 26}\\
+\end{tabular}
+\end{center}
+\caption{Parzen window-based log-likelihood estimates. The reported numbers on MNIST are the mean loglikelihood of samples on test set, with the standard error of the mean computed across examples. On TFD, we computed the standard error across folds of the dataset, with a different σ chosen using the validation set of each fold. On TFD, $\sigma$ was cross validated on each fold and mean log-likelihood on each fold were computed. For MNIST we compare against other models of the real-valued (rather than binary) version of dataset.
+}
+\label{tab}
+\end{table}
+
+
+{\small
+\bibliographystyle{ieee}
+\bibliography{generative}
+}
+
+
+
+
+
+
+
+
+
+
+
+\end{document}
